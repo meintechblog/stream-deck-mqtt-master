@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Ready to plan
-stopped_at: Phase 3 context gathered
-last_updated: "2026-03-25T21:35:17.963Z"
+status: Ready to execute
+stopped_at: Completed 03-01-PLAN.md
+last_updated: "2026-03-25T22:01:51.033Z"
 progress:
   total_phases: 3
   completed_phases: 2
-  total_plans: 6
-  completed_plans: 6
+  total_plans: 8
+  completed_plans: 7
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-25)
 
 **Core value:** Ein Button auf dem Stream Deck zeigt den aktuellen MQTT-Status UND kann ihn per Tastendruck aendern -- bidirektional, live, ohne Umwege.
-**Current focus:** Phase 02 — toggle-settings-ui
+**Current focus:** Phase 03 — hardening-deployment
 
 ## Current Position
 
-Phase: 3
-Plan: Not started
+Phase: 03 (hardening-deployment) — EXECUTING
+Plan: 2 of 2
 
 ## Performance Metrics
 
@@ -50,6 +50,7 @@ Plan: Not started
 | Phase 01 P02 | 2min | 2 tasks | 5 files |
 | Phase 02 P01 | 3min | 2 tasks | 4 files |
 | Phase 02 P02 | 2min | 1 tasks | 1 files |
+| Phase 03 P01 | 2min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -67,6 +68,8 @@ Recent decisions affecting current work:
 - [Phase 01]: Override outDir in Rollup typescript plugin to fix build path mismatch
 - [Phase 02]: Null JSON values fall back to raw payload for safety
 - [Phase 02]: Shared buildSubscriptionCallback helper for callback dedup in MqttAction
+- [Phase 03]: Empty string title on reconnect lets retained MQTT messages naturally restore real value
+- [Phase 03]: Status unregister placed outside subscribeTopic check for complete cleanup
 
 ### Pending Todos
 
@@ -78,6 +81,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-25T21:35:17.957Z
-Stopped at: Phase 3 context gathered
-Resume file: .planning/phases/03-hardening-deployment/03-CONTEXT.md
+Last session: 2026-03-25T22:01:51.030Z
+Stopped at: Completed 03-01-PLAN.md
+Resume file: None

@@ -64,7 +64,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 03-01-PLAN.md — Disconnect indicator + subscription lifecycle cleanup (UI-05, SUB-04)
+- [x] 03-01-PLAN.md — Disconnect indicator + subscription lifecycle cleanup (UI-05, SUB-04)
 - [ ] 03-02-PLAN.md — Deploy script, packaging, GitHub Release (ARCH-05)
 
 ## Progress

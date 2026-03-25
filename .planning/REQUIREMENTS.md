@@ -25,7 +25,7 @@
 - [x] **SUB-01**: Button abonniert ein konfigurierbares MQTT-Topic und empfängt Nachrichten
 - [x] **SUB-02**: Button-Titel aktualisiert sich live mit dem empfangenen MQTT-Wert
 - [x] **SUB-03**: User kann einen JSON-Path angeben, um einen Wert aus einem JSON-Payload zu extrahieren (z.B. `temperature` aus `{"temperature": 22.5}`)
-- [ ] **SUB-04**: Subscriptions werden korrekt verwaltet (Subscribe bei willAppear, Unsubscribe bei willDisappear)
+- [x] **SUB-04**: Subscriptions werden korrekt verwaltet (Subscribe bei willAppear, Unsubscribe bei willDisappear)
 
 ### Toggle
 
@@ -39,7 +39,7 @@
 - [x] **UI-02**: Property Inspector bietet Konfiguration für Publish-Einstellungen (Topic, Payload, QoS, Retain)
 - [x] **UI-03**: Property Inspector bietet Konfiguration für Subscribe-Einstellungen (Topic, JSON Path)
 - [x] **UI-04**: Property Inspector bietet Toggle-Konfiguration (On-Payload, Off-Payload, On-Value, Off-Value)
-- [ ] **UI-05**: Button zeigt visuelles Feedback bei Broker-Disconnect (Connection Status Indicator)
+- [x] **UI-05**: Button zeigt visuelles Feedback bei Broker-Disconnect (Connection Status Indicator)
 
 ### Architecture
 
@@ -103,7 +103,7 @@
 | SUB-01 | Phase 1 | Complete |
 | SUB-02 | Phase 1 | Complete |
 | SUB-03 | Phase 2 | Complete |
-| SUB-04 | Phase 3 | Pending |
+| SUB-04 | Phase 3 | Complete |
 | TOGL-01 | Phase 2 | Complete |
 | TOGL-02 | Phase 2 | Complete |
 | TOGL-03 | Phase 2 | Complete |
@@ -111,7 +111,7 @@
 | UI-02 | Phase 2 | Complete |
 | UI-03 | Phase 2 | Complete |
 | UI-04 | Phase 2 | Complete |
-| UI-05 | Phase 3 | Pending |
+| UI-05 | Phase 3 | Complete |
 | ARCH-01 | Phase 1 | Complete |
 | ARCH-02 | Phase 1 | Complete |
 | ARCH-03 | Phase 1 | Complete |
