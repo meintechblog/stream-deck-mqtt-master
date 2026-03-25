@@ -7,12 +7,12 @@
 
 ### Connection
 
-- [ ] **CONN-01**: Plugin verbindet sich mit einem MQTT-Broker über TCP (Host + Port konfigurierbar)
-- [ ] **CONN-02**: Plugin unterstützt optionale Username/Passwort-Authentifizierung
-- [ ] **CONN-03**: Plugin unterstützt TLS/SSL-verschlüsselte Verbindungen
-- [ ] **CONN-04**: Plugin verbindet sich automatisch wieder nach Verbindungsverlust (Auto-Reconnect)
-- [ ] **CONN-05**: Mehrere Buttons können denselben Broker nutzen (Connection Pooling per Broker)
-- [ ] **CONN-06**: Broker-Credentials werden sicher in Global Settings gespeichert (nicht in exportierbaren Action Settings)
+- [x] **CONN-01**: Plugin verbindet sich mit einem MQTT-Broker über TCP (Host + Port konfigurierbar)
+- [x] **CONN-02**: Plugin unterstützt optionale Username/Passwort-Authentifizierung
+- [x] **CONN-03**: Plugin unterstützt TLS/SSL-verschlüsselte Verbindungen
+- [x] **CONN-04**: Plugin verbindet sich automatisch wieder nach Verbindungsverlust (Auto-Reconnect)
+- [x] **CONN-05**: Mehrere Buttons können denselben Broker nutzen (Connection Pooling per Broker)
+- [x] **CONN-06**: Broker-Credentials werden sicher in Global Settings gespeichert (nicht in exportierbaren Action Settings)
 
 ### Publish
 
@@ -43,9 +43,9 @@
 
 ### Architecture
 
-- [ ] **ARCH-01**: Plugin läuft als persistenter Node.js-Prozess mit stabiler MQTT-Verbindung
-- [ ] **ARCH-02**: ConnectionManager implementiert Singleton-Pattern mit Per-Broker Connection Pooling
-- [ ] **ARCH-03**: TopicRouter leitet eingehende MQTT-Nachrichten an die richtigen Buttons weiter (1:N Routing)
+- [x] **ARCH-01**: Plugin läuft als persistenter Node.js-Prozess mit stabiler MQTT-Verbindung
+- [x] **ARCH-02**: ConnectionManager implementiert Singleton-Pattern mit Per-Broker Connection Pooling
+- [x] **ARCH-03**: TopicRouter leitet eingehende MQTT-Nachrichten an die richtigen Buttons weiter (1:N Routing)
 - [ ] **ARCH-04**: Plugin ist kompatibel mit Stream Deck MK.2 (15 Tasten) und XL (32 Tasten)
 - [ ] **ARCH-05**: Plugin kann lokal deployed werden auf macOS (Ziel: mini-von-jorg-7.local)
 
@@ -91,12 +91,12 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CONN-01 | Phase 1 | Pending |
-| CONN-02 | Phase 1 | Pending |
-| CONN-03 | Phase 1 | Pending |
-| CONN-04 | Phase 1 | Pending |
-| CONN-05 | Phase 1 | Pending |
-| CONN-06 | Phase 1 | Pending |
+| CONN-01 | Phase 1 | Complete |
+| CONN-02 | Phase 1 | Complete |
+| CONN-03 | Phase 1 | Complete |
+| CONN-04 | Phase 1 | Complete |
+| CONN-05 | Phase 1 | Complete |
+| CONN-06 | Phase 1 | Complete |
 | PUB-01 | Phase 1 | Pending |
 | PUB-02 | Phase 1 | Pending |
 | PUB-03 | Phase 1 | Pending |
@@ -112,9 +112,9 @@
 | UI-03 | Phase 2 | Pending |
 | UI-04 | Phase 2 | Pending |
 | UI-05 | Phase 3 | Pending |
-| ARCH-01 | Phase 1 | Pending |
-| ARCH-02 | Phase 1 | Pending |
-| ARCH-03 | Phase 1 | Pending |
+| ARCH-01 | Phase 1 | Complete |
+| ARCH-02 | Phase 1 | Complete |
+| ARCH-03 | Phase 1 | Complete |
 | ARCH-04 | Phase 1 | Pending |
 | ARCH-05 | Phase 3 | Pending |
 

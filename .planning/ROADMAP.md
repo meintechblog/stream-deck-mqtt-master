@@ -31,7 +31,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01-PLAN.md — Scaffold project, types, ConnectionManager + TopicRouter services
+- [x] 01-01-PLAN.md — Scaffold project, types, ConnectionManager + TopicRouter services
 - [ ] 01-02-PLAN.md — Unified MqttAction, Property Inspector, plugin entry point + build
 - [ ] 01-03-PLAN.md — Deploy to Mac Mini, E2E hardware verification
 
