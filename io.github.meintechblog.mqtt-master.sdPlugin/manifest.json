@@ -1,0 +1,49 @@
+{
+  "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+  "UUID": "io.github.meintechblog.mqtt-master",
+  "Name": "MQTT Master",
+  "Author": "meintechblog",
+  "Description": "Bidirectional MQTT for Stream Deck. Publish on press, subscribe for live status.",
+  "Version": "0.1.0.0",
+  "CodePath": "bin/plugin.js",
+  "Icon": "imgs/plugin-icon",
+  "Category": "MQTT",
+  "CategoryIcon": "imgs/plugin-icon",
+  "Nodejs": {
+    "Version": "20",
+    "Debug": "enabled"
+  },
+  "SDKVersion": 2,
+  "Software": {
+    "MinimumVersion": "6.6"
+  },
+  "OS": [
+    { "Platform": "mac", "MinimumVersion": "13" },
+    { "Platform": "windows", "MinimumVersion": "10" }
+  ],
+  "Actions": [
+    {
+      "UUID": "io.github.meintechblog.mqtt-master.mqtt",
+      "Name": "MQTT",
+      "Icon": "imgs/mqtt-action",
+      "Tooltip": "Publish and subscribe to MQTT topics",
+      "PropertyInspectorPath": "ui/mqtt-action.html",
+      "SupportedInMultiActions": false,
+      "Controllers": ["Keypad"],
+      "States": [
+        {
+          "Image": "imgs/state-off",
+          "Title": "MQTT",
+          "TitleAlignment": "bottom",
+          "ShowTitle": true
+        },
+        {
+          "Image": "imgs/state-on",
+          "Title": "MQTT",
+          "TitleAlignment": "bottom",
+          "ShowTitle": true
+        }
+      ]
+    }
+  ]
+}
