@@ -297,9 +297,12 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
       } else {
         this.previousTopics.delete(ev.action.id);
       }
-    } else {
-      // Topic unchanged -- likely a lastValue-only update from subscription callback
-      logger.debug("didReceiveSettings: lastValue-only change, skipping re-registration");
+    } else if (newTopic) {
+      // Topic unchanged but other settings may have changed (offValue, jsonPath, etc.)
+      // Re-register callback with fresh settings to pick up PI changes
+      const callback = this.buildSubscriptionCallback(settings, ev.action);
+      topicRouter.updateCallback(key, newTopic, ev.action.id, callback);
+      logger.info("didReceiveSettings: topic unchanged, callback updated with new settings");
     }
   }
 }

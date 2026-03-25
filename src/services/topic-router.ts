@@ -72,6 +72,20 @@ class TopicRouter {
   }
 
   /**
+   * Update the callback for an existing subscription without re-subscribing at MQTT level.
+   * Used when settings change (e.g. offValue, jsonPath) but the topic stays the same.
+   */
+  updateCallback(
+    brokerKey: string,
+    topic: string,
+    contextId: string,
+    callback: (payload: string) => void,
+  ): void {
+    this.callbacks.set(contextId, callback);
+    logger.debug(`Updated callback for context ${contextId} on ${brokerKey}/${topic}`);
+  }
+
+  /**
    * Dispatch an incoming MQTT message to all subscribed action contexts.
    */
   dispatch(brokerKey: string, topic: string, payload: string): void {
