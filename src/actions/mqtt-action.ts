@@ -65,6 +65,8 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
         ? applyDisplayTemplate(settings.displayTemplate, extracted)
         : extracted;
 
+      logger.info(`callback: raw="${rawPayload.substring(0, 80)}" jsonPath="${settings.jsonPath}" extracted="${extracted}" display="${displayValue}"`);
+
       // Step 3: Update button title
       actionRef.setTitle(displayValue).catch((err: unknown) => {
         logger.error(`setTitle failed: ${err instanceof Error ? err.message : String(err)}`);
@@ -90,13 +92,11 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
         actionRef.setState(extracted === settings.onValue ? 1 : 0).catch(() => {});
       }
 
-      // Step 5: Cache lastValue only when changed (avoid feedback loop)
-      if (extracted !== settings.lastValue) {
-        settings.lastValue = extracted;
-        actionRef.setSettings({ ...settings, lastValue: extracted }).catch((err: unknown) => {
-          logger.error(`setSettings failed: ${err instanceof Error ? err.message : String(err)}`);
-        });
-      }
+      // Step 5: Update lastValue in the captured settings reference
+      // NOTE: We do NOT call setSettings() here — it would overwrite any PI changes
+      // the user made since this callback was created. lastValue is cached in memory
+      // and will be persisted on next didReceiveSettings or willDisappear.
+      settings.lastValue = extracted;
     };
   }
 
@@ -234,9 +234,28 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
   /**
    * Handle live PI changes -- re-register subscriptions when subscribe topic changes.
    */
+  // Debounce timer per action context to avoid creating connections while user types
+  private debounceTimers = new Map<string, ReturnType<typeof setTimeout>>();
+
   override async onDidReceiveSettings(ev: DidReceiveSettingsEvent<MqttActionSettings>): Promise<void> {
     const settings = ev.payload.settings;
     logger.info(`didReceiveSettings: ${JSON.stringify(settings)}`);
+
+    // Debounce: wait 1s after last settings change before acting
+    // Prevents ghost connections while user types port "1" -> "18" -> "188" -> "1883"
+    const existingTimer = this.debounceTimers.get(ev.action.id);
+    if (existingTimer) clearTimeout(existingTimer);
+
+    this.debounceTimers.set(ev.action.id, setTimeout(() => {
+      this.debounceTimers.delete(ev.action.id);
+      this.handleSettingsChange(ev).catch((err: unknown) => {
+        logger.error(`handleSettingsChange failed: ${err instanceof Error ? err.message : String(err)}`);
+      });
+    }, 1000));
+  }
+
+  private async handleSettingsChange(ev: DidReceiveSettingsEvent<MqttActionSettings>): Promise<void> {
+    const settings = ev.payload.settings;
     const config = this.getBrokerConfigFromSettings(settings);
 
     if (!config) {
