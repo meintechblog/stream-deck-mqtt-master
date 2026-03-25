@@ -4,7 +4,9 @@
   "type": "module",
   "scripts": {
     "build": "rollup -c",
-    "watch": "rollup -c -w"
+    "watch": "rollup -c -w",
+    "deploy": "bash scripts/deploy.sh",
+    "package": "npm run build && streamdeck pack io.github.meintechblog.mqtt-master.sdPlugin"
   },
   "dependencies": {
     "@elgato/streamdeck": "^2.0.4",
