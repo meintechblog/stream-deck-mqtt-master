@@ -29,9 +29,9 @@
 
 ### Toggle
 
-- [ ] **TOGL-01**: Toggle-Modus wechselt zwischen zwei konfigurierbaren Payloads basierend auf dem aktuellen MQTT-State
-- [ ] **TOGL-02**: Toggle-State wird aus dem abonnierten Topic abgeleitet (nicht lokal getrackt)
-- [ ] **TOGL-03**: Button-State (Bild/Icon) ändert sich visuell basierend auf dem empfangenen MQTT-Wert
+- [x] **TOGL-01**: Toggle-Modus wechselt zwischen zwei konfigurierbaren Payloads basierend auf dem aktuellen MQTT-State
+- [x] **TOGL-02**: Toggle-State wird aus dem abonnierten Topic abgeleitet (nicht lokal getrackt)
+- [x] **TOGL-03**: Button-State (Bild/Icon) ändert sich visuell basierend auf dem empfangenen MQTT-Wert
 
 ### UI
 
@@ -104,9 +104,9 @@
 | SUB-02 | Phase 1 | Complete |
 | SUB-03 | Phase 2 | Complete |
 | SUB-04 | Phase 3 | Pending |
-| TOGL-01 | Phase 2 | Pending |
-| TOGL-02 | Phase 2 | Pending |
-| TOGL-03 | Phase 2 | Pending |
+| TOGL-01 | Phase 2 | Complete |
+| TOGL-02 | Phase 2 | Complete |
+| TOGL-03 | Phase 2 | Complete |
 | UI-01 | Phase 2 | Complete |
 | UI-02 | Phase 2 | Complete |
 | UI-03 | Phase 2 | Complete |
