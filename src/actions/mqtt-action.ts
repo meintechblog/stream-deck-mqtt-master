@@ -108,11 +108,18 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
     const settings = ev.payload.settings;
     logger.info(`willAppear settings: ${JSON.stringify(settings)}`);
 
-    // Auto-fix whitespace in saved settings (one-time cleanup)
-    if (settings.brokerHost && settings.brokerHost !== settings.brokerHost.trim()) {
-      settings.brokerHost = settings.brokerHost.trim();
+    // Auto-fix whitespace in all string settings (PI textfields often have trailing spaces)
+    let needsSave = false;
+    for (const key of ["brokerHost", "brokerPort", "subscribeTopic", "publishTopic", "publishPayload", "jsonPath", "displayTemplate", "onPayload", "offPayload", "onValue", "offValue"] as const) {
+      const val = settings[key as keyof MqttActionSettings];
+      if (typeof val === "string" && val !== val.trim()) {
+        (settings as Record<string, unknown>)[key] = val.trim();
+        needsSave = true;
+      }
+    }
+    if (needsSave) {
       await ev.action.setSettings(settings);
-      logger.info("Auto-trimmed brokerHost whitespace in saved settings");
+      logger.info("Auto-trimmed whitespace in saved settings");
     }
 
     const config = this.getBrokerConfigFromSettings(settings);
@@ -233,12 +240,21 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
     const config = this.getBrokerConfigFromSettings(settings);
 
     if (!config) {
+      await ev.action.setTitle("No Broker");
       return;
     }
 
+    // Ensure broker connection exists (handles initial config from PI)
     const key = brokerKey(config);
+    connectionManager.getOrCreate(config);
+
+    // Clear "No Broker" title when broker is first configured
+    if (!this.previousTopics.has(ev.action.id) && !settings.subscribeTopic) {
+      await ev.action.setTitle("MQTT");
+    }
+
     const oldTopic = this.previousTopics.get(ev.action.id);
-    const newTopic = settings.subscribeTopic;
+    const newTopic = settings.subscribeTopic?.trim();
 
     if (oldTopic !== newTopic) {
       // Unregister old topic

@@ -24,7 +24,7 @@
   "Actions": [
     {
       "UUID": "io.github.meintechblog.mqtt-master.mqtt",
-      "Name": "MQTT",
+      "Name": "MQTT Master",
       "Icon": "imgs/mqtt-action",
       "Tooltip": "Publish and subscribe to MQTT topics",
       "PropertyInspectorPath": "ui/mqtt-action.html",
