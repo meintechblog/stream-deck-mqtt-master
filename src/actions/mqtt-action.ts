@@ -132,6 +132,7 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
 
     const key = brokerKey(config);
     connectionManager.getOrCreate(config);
+    connectionManager.registerActionForStatus(key, ev.action.id, ev.action);
 
     if (settings.subscribeTopic) {
       const callback = this.buildSubscriptionCallback(settings, ev.action);
@@ -223,14 +224,23 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
       return;
     }
 
+    const key = brokerKey(config);
+    connectionManager.unregisterActionForStatus(key, ev.action.id);
+
     if (settings.subscribeTopic) {
-      const key = brokerKey(config);
       const isLast = topicRouter.unregister(key, settings.subscribeTopic, ev.action.id);
       if (isLast) {
         connectionManager.ensureUnsubscribed(key, settings.subscribeTopic);
       }
     }
 
+    // Memory cleanup (SUB-04, Pitfall 6)
+    this.lastValues.delete(ev.action.id);
+    const pendingTimer = this.debounceTimers.get(ev.action.id);
+    if (pendingTimer) {
+      clearTimeout(pendingTimer);
+      this.debounceTimers.delete(ev.action.id);
+    }
     this.previousTopics.delete(ev.action.id);
   }
 
