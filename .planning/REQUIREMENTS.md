@@ -16,14 +16,14 @@
 
 ### Publish
 
-- [ ] **PUB-01**: User kann per Tastendruck ein konfigurierbares Payload an ein konfigurierbares MQTT-Topic senden
-- [ ] **PUB-02**: User kann QoS-Level (0, 1, 2) pro Button einstellen
-- [ ] **PUB-03**: User kann die Retain-Flag pro Publish-Aktion aktivieren/deaktivieren
+- [x] **PUB-01**: User kann per Tastendruck ein konfigurierbares Payload an ein konfigurierbares MQTT-Topic senden
+- [x] **PUB-02**: User kann QoS-Level (0, 1, 2) pro Button einstellen
+- [x] **PUB-03**: User kann die Retain-Flag pro Publish-Aktion aktivieren/deaktivieren
 
 ### Subscribe
 
-- [ ] **SUB-01**: Button abonniert ein konfigurierbares MQTT-Topic und empfängt Nachrichten
-- [ ] **SUB-02**: Button-Titel aktualisiert sich live mit dem empfangenen MQTT-Wert
+- [x] **SUB-01**: Button abonniert ein konfigurierbares MQTT-Topic und empfängt Nachrichten
+- [x] **SUB-02**: Button-Titel aktualisiert sich live mit dem empfangenen MQTT-Wert
 - [ ] **SUB-03**: User kann einen JSON-Path angeben, um einen Wert aus einem JSON-Payload zu extrahieren (z.B. `temperature` aus `{"temperature": 22.5}`)
 - [ ] **SUB-04**: Subscriptions werden korrekt verwaltet (Subscribe bei willAppear, Unsubscribe bei willDisappear)
 
@@ -46,7 +46,7 @@
 - [x] **ARCH-01**: Plugin läuft als persistenter Node.js-Prozess mit stabiler MQTT-Verbindung
 - [x] **ARCH-02**: ConnectionManager implementiert Singleton-Pattern mit Per-Broker Connection Pooling
 - [x] **ARCH-03**: TopicRouter leitet eingehende MQTT-Nachrichten an die richtigen Buttons weiter (1:N Routing)
-- [ ] **ARCH-04**: Plugin ist kompatibel mit Stream Deck MK.2 (15 Tasten) und XL (32 Tasten)
+- [x] **ARCH-04**: Plugin ist kompatibel mit Stream Deck MK.2 (15 Tasten) und XL (32 Tasten)
 - [ ] **ARCH-05**: Plugin kann lokal deployed werden auf macOS (Ziel: mini-von-jorg-7.local)
 
 ## v2 Requirements
@@ -97,11 +97,11 @@
 | CONN-04 | Phase 1 | Complete |
 | CONN-05 | Phase 1 | Complete |
 | CONN-06 | Phase 1 | Complete |
-| PUB-01 | Phase 1 | Pending |
-| PUB-02 | Phase 1 | Pending |
-| PUB-03 | Phase 1 | Pending |
-| SUB-01 | Phase 1 | Pending |
-| SUB-02 | Phase 1 | Pending |
+| PUB-01 | Phase 1 | Complete |
+| PUB-02 | Phase 1 | Complete |
+| PUB-03 | Phase 1 | Complete |
+| SUB-01 | Phase 1 | Complete |
+| SUB-02 | Phase 1 | Complete |
 | SUB-03 | Phase 2 | Pending |
 | SUB-04 | Phase 3 | Pending |
 | TOGL-01 | Phase 2 | Pending |
@@ -115,7 +115,7 @@
 | ARCH-01 | Phase 1 | Complete |
 | ARCH-02 | Phase 1 | Complete |
 | ARCH-03 | Phase 1 | Complete |
-| ARCH-04 | Phase 1 | Pending |
+| ARCH-04 | Phase 1 | Complete |
 | ARCH-05 | Phase 3 | Pending |
 
 **Coverage:**
