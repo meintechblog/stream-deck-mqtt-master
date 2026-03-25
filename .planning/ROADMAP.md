@@ -51,7 +51,7 @@ Plans:
 Plans:
 - [x] 02-01-PLAN.md — Extend settings schema, resolveJsonPath utility, full Property Inspector UI
 - [x] 02-02-PLAN.md — Wire toggle logic, JSON path extraction, setState into MqttAction
-- [ ] 02-03-PLAN.md — Build, deploy to Mac Mini, hardware verification
+- [x] 02-03-PLAN.md — Build, deploy to Mac Mini, hardware verification
 
 ### Phase 3: Hardening + Deployment
 **Goal**: Plugin handles edge cases gracefully and runs reliably on the target Mac Mini as a daily-use smart home controller
