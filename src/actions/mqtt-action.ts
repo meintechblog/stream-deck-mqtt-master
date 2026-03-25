@@ -33,7 +33,8 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
   private trimSettings(settings: MqttActionSettings): void {
     for (const key of ["brokerHost", "brokerPort", "brokerUsername", "brokerPassword",
       "subscribeTopic", "publishTopic", "publishPayload", "jsonPath", "displayTemplate",
-      "onPayload", "offPayload", "onValue", "offValue"] as const) {
+      "onPayload", "offPayload", "onValue", "offValue",
+      "longPressTopic", "longPressPayload"] as const) {
       const val = settings[key as keyof MqttActionSettings];
       if (typeof val === "string") {
         (settings as Record<string, unknown>)[key] = val.trim();
@@ -93,17 +94,19 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
       // - Both set: exact match for on and off
       // - Only offValue set: match = off, everything else = on
       // - Only onValue set: match = on, everything else = off
-      if (settings.onValue && settings.offValue) {
-        // Both defined: onValue = on, everything else = off
-        const newState = extracted === settings.onValue ? 1 : 0;
-        actionRef.setState(newState).catch(() => {});
-        logger.info(`setState(${newState}) for extracted="${extracted}" onValue="${settings.onValue}"`);
-      } else if (settings.offValue && !settings.onValue) {
-        // Only offValue: match = off, anything else = on
-        actionRef.setState(extracted === settings.offValue ? 0 : 1).catch(() => {});
-      } else if (settings.onValue && !settings.offValue) {
-        // Only onValue: match = on, anything else = off
-        actionRef.setState(extracted === settings.onValue ? 1 : 0).catch(() => {});
+      if (actionRef.isKey()) {
+        if (settings.onValue && settings.offValue) {
+          // Both defined: onValue = on, everything else = off
+          const newState = extracted === settings.onValue ? 1 : 0;
+          actionRef.setState(newState).catch(() => {});
+          logger.info(`setState(${newState}) for extracted="${extracted}" onValue="${settings.onValue}"`);
+        } else if (settings.offValue && !settings.onValue) {
+          // Only offValue: match = off, anything else = on
+          actionRef.setState(extracted === settings.offValue ? 0 : 1).catch(() => {});
+        } else if (settings.onValue && !settings.offValue) {
+          // Only onValue: match = on, anything else = off
+          actionRef.setState(extracted === settings.onValue ? 1 : 0).catch(() => {});
+        }
       }
 
       // Step 5: Cache lastValue in memory map (avoids setSettings/getSettings side effects)
@@ -154,13 +157,15 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
       await ev.action.setTitle(displayValue);
 
       // Restore toggle state from cached value (same logic as subscription callback)
-      if (settings.onValue && settings.offValue) {
-        if (settings.lastValue === settings.onValue) await ev.action.setState(1);
-        else if (settings.lastValue === settings.offValue) await ev.action.setState(0);
-      } else if (settings.offValue && !settings.onValue) {
-        await ev.action.setState(settings.lastValue === settings.offValue ? 0 : 1);
-      } else if (settings.onValue && !settings.offValue) {
-        await ev.action.setState(settings.lastValue === settings.onValue ? 1 : 0);
+      if (ev.action.isKey()) {
+        if (settings.onValue && settings.offValue) {
+          if (settings.lastValue === settings.onValue) await ev.action.setState(1);
+          else if (settings.lastValue === settings.offValue) await ev.action.setState(0);
+        } else if (settings.offValue && !settings.onValue) {
+          await ev.action.setState(settings.lastValue === settings.offValue ? 0 : 1);
+        } else if (settings.onValue && !settings.offValue) {
+          await ev.action.setState(settings.lastValue === settings.onValue ? 1 : 0);
+        }
       }
     }
   }
