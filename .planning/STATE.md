@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Ready to execute
-stopped_at: Completed 03-01-PLAN.md
-last_updated: "2026-03-25T22:01:51.033Z"
+status: Phase complete — ready for verification
+stopped_at: Completed 03-02-PLAN.md (checkpoint pending)
+last_updated: "2026-03-25T22:05:55.524Z"
 progress:
   total_phases: 3
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 8
-  completed_plans: 7
+  completed_plans: 8
 ---
 
 # Project State
@@ -51,6 +51,7 @@ Plan: 2 of 2
 | Phase 02 P01 | 3min | 2 tasks | 4 files |
 | Phase 02 P02 | 2min | 1 tasks | 1 files |
 | Phase 03 P01 | 2min | 2 tasks | 2 files |
+| Phase 03 P02 | 2min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -70,6 +71,7 @@ Recent decisions affecting current work:
 - [Phase 02]: Shared buildSubscriptionCallback helper for callback dedup in MqttAction
 - [Phase 03]: Empty string title on reconnect lets retained MQTT messages naturally restore real value
 - [Phase 03]: Status unregister placed outside subscribeTopic check for complete cleanup
+- [Phase 03]: deploy.sh calls npm run build internally to avoid double-building
 
 ### Pending Todos
 
@@ -81,6 +83,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-25T22:01:51.030Z
-Stopped at: Completed 03-01-PLAN.md
+Last session: 2026-03-25T22:05:55.521Z
+Stopped at: Completed 03-02-PLAN.md (checkpoint pending)
 Resume file: None

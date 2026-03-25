@@ -47,7 +47,7 @@
 - [x] **ARCH-02**: ConnectionManager implementiert Singleton-Pattern mit Per-Broker Connection Pooling
 - [x] **ARCH-03**: TopicRouter leitet eingehende MQTT-Nachrichten an die richtigen Buttons weiter (1:N Routing)
 - [x] **ARCH-04**: Plugin ist kompatibel mit Stream Deck MK.2 (15 Tasten) und XL (32 Tasten)
-- [ ] **ARCH-05**: Plugin kann lokal deployed werden auf macOS (Ziel: mini-von-jorg-7.local)
+- [x] **ARCH-05**: Plugin kann lokal deployed werden auf macOS (Ziel: mini-von-jorg-7.local)
 
 ## v2 Requirements
 
@@ -116,7 +116,7 @@
 | ARCH-02 | Phase 1 | Complete |
 | ARCH-03 | Phase 1 | Complete |
 | ARCH-04 | Phase 1 | Complete |
-| ARCH-05 | Phase 3 | Pending |
+| ARCH-05 | Phase 3 | Complete |
 
 **Coverage:**
 - v1 requirements: 26 total
