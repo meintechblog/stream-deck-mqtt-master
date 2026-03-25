@@ -49,7 +49,7 @@ Plans:
 **UI hint**: yes
 
 Plans:
-- [ ] 02-01-PLAN.md — Extend settings schema, resolveJsonPath utility, full Property Inspector UI
+- [x] 02-01-PLAN.md — Extend settings schema, resolveJsonPath utility, full Property Inspector UI
 - [ ] 02-02-PLAN.md — Wire toggle logic, JSON path extraction, setState into MqttAction
 - [ ] 02-03-PLAN.md — Build, deploy to Mac Mini, hardware verification
 
