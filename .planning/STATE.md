@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Power Features + Polish
-status: Defining requirements
-stopped_at: null
-last_updated: "2026-03-25T22:33:43.089Z"
+status: Ready to plan Phase 4
+stopped_at: Roadmap created for v2.0
+last_updated: "2026-03-25T23:00:00.000Z"
 progress:
-  total_phases: 3
+  total_phases: 6
   completed_phases: 3
-  total_plans: 8
-  completed_plans: 8
+  total_plans: 0
+  completed_plans: 0
 ---
 
 # Project State
@@ -19,41 +19,33 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-25)
 
 **Core value:** Ein Button auf dem Stream Deck zeigt den aktuellen MQTT-Status UND kann ihn per Tastendruck aendern -- bidirektional, live, ohne Umwege.
-**Current focus:** Defining v2.0 requirements
+**Current focus:** Phase 4 - Type Safety + Long Press
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-03-25 — Milestone v2.0 started
+Phase: 4 of 6 (Type Safety + Long Press)
+Plan: 0 of ? in current phase
+Status: Ready to plan
+Last activity: 2026-03-25 -- v2.0 roadmap created
+
+Progress: [######░░░░] 50% (3/6 phases)
 
 ## Performance Metrics
 
-**Velocity:**
+**Velocity (v1.0):**
+- Total plans completed: 8
+- Average duration: ~2.4 min
+- Total execution time: ~19 min
 
-- Total plans completed: 0
-- Average duration: -
-- Total execution time: 0 hours
-
-**By Phase:**
+**By Phase (v1.0):**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| - | - | - | - |
+| Phase 01 | 2 | 5min | 2.5min |
+| Phase 02 | 3 | 7min | 2.3min |
+| Phase 03 | 3 | 6min | 2.0min |
 
-**Recent Trend:**
-
-- Last 5 plans: -
-- Trend: -
-
-*Updated after each plan completion*
-| Phase 01 P01 | 3min | 3 tasks | 9 files |
-| Phase 01 P02 | 2min | 2 tasks | 5 files |
-| Phase 02 P01 | 3min | 2 tasks | 4 files |
-| Phase 02 P02 | 2min | 1 tasks | 1 files |
-| Phase 03 P01 | 2min | 2 tasks | 2 files |
-| Phase 03 P02 | 2min | 2 tasks | 5 files |
+**v2.0:** No plans executed yet.
 
 ## Accumulated Context
 
@@ -62,18 +54,11 @@ Last activity: 2026-03-25 — Milestone v2.0 started
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
 
-- Roadmap: 3-phase coarse structure (Core -> Toggle+UI -> Hardening+Deploy)
-- Architecture: ConnectionManager singleton with per-broker pooling from Phase 1 (research finding)
-- Architecture: Broker credentials in global settings only, never action settings (security)
-- [Phase 01]: Manual scaffold over streamdeck create (CLI not available locally)
-- [Phase 01]: CJS output format for Rollup (safe default per Lambda tutorial)
-- [Phase 01]: clean:true + explicit resubscribe for MQTT reconnect reliability
-- [Phase 01]: Override outDir in Rollup typescript plugin to fix build path mismatch
-- [Phase 02]: Null JSON values fall back to raw payload for safety
-- [Phase 02]: Shared buildSubscriptionCallback helper for callback dedup in MqttAction
-- [Phase 03]: Empty string title on reconnect lets retained MQTT messages naturally restore real value
-- [Phase 03]: Status unregister placed outside subscribeTopic check for complete cleanup
-- [Phase 03]: deploy.sh calls npm run build internally to avoid double-building
+- [v1.0]: ConnectionManager singleton with per-broker pooling
+- [v1.0]: Broker credentials in global settings only (security)
+- [v1.0]: CJS output for Rollup, clean:true + explicit resubscribe
+- [v2.0]: Long Press threshold hardcoded at 500ms (configurable deferred)
+- [v2.0]: PI Redesign uses custom CSS over sdpi-components (no framework)
 
 ### Pending Todos
 
@@ -81,10 +66,10 @@ None yet.
 
 ### Blockers/Concerns
 
-None yet.
+- QUAL-01: 7 tsc --noEmit errors (setState on union type) -- must fix before adding Long Press
 
 ## Session Continuity
 
-Last session: 2026-03-25T22:05:55.521Z
-Stopped at: Completed 03-02-PLAN.md (checkpoint pending)
+Last session: 2026-03-25
+Stopped at: v2.0 roadmap created, ready to plan Phase 4
 Resume file: None

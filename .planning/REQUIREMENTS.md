@@ -62,22 +62,22 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| LP-01 | TBD | Pending |
-| LP-02 | TBD | Pending |
-| LP-03 | TBD | Pending |
-| LP-04 | TBD | Pending |
-| PI-01 | TBD | Pending |
-| PI-02 | TBD | Pending |
-| PI-03 | TBD | Pending |
-| DISP-01 | TBD | Pending |
-| DISP-02 | TBD | Pending |
-| QUAL-01 | TBD | Pending |
+| QUAL-01 | Phase 4 | Pending |
+| LP-01 | Phase 4 | Pending |
+| LP-02 | Phase 4 | Pending |
+| LP-03 | Phase 4 | Pending |
+| LP-04 | Phase 4 | Pending |
+| PI-01 | Phase 5 | Pending |
+| PI-02 | Phase 5 | Pending |
+| PI-03 | Phase 5 | Pending |
+| DISP-01 | Phase 6 | Pending |
+| DISP-02 | Phase 6 | Pending |
 
 **Coverage:**
 - v2 requirements: 10 total
-- Mapped to phases: 0
-- Unmapped: 10
+- Mapped to phases: 10
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-25*
-*Last updated: 2026-03-25 after milestone v2.0 start*
+*Last updated: 2026-03-25 after v2.0 roadmap creation*
