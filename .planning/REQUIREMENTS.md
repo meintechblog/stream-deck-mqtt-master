@@ -11,7 +11,7 @@
 - [ ] **LP-01**: Langer Tastendruck (≥500ms) sendet konfigurierbares Long-Press-Payload an konfigurierbares Topic
 - [ ] **LP-02**: Kurzer Tastendruck (<500ms) verhält sich wie bisher (normaler Publish/Toggle)
 - [ ] **LP-03**: Wenn kein Long-Press-Payload konfiguriert ist, passiert bei langem Druck nichts
-- [ ] **LP-04**: Property Inspector hat Felder für Long-Press Topic und Long-Press Payload
+- [x] **LP-04**: Property Inspector hat Felder für Long-Press Topic und Long-Press Payload
 
 ### Property Inspector Redesign
 
@@ -26,7 +26,7 @@
 
 ### Quality
 
-- [ ] **QUAL-01**: `tsc --noEmit` läuft fehlerfrei durch (setState union type Fehler behoben)
+- [x] **QUAL-01**: `tsc --noEmit` läuft fehlerfrei durch (setState union type Fehler behoben)
 
 ## Future Requirements
 
@@ -62,11 +62,11 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| QUAL-01 | Phase 4 | Pending |
+| QUAL-01 | Phase 4 | Complete |
 | LP-01 | Phase 4 | Pending |
 | LP-02 | Phase 4 | Pending |
 | LP-03 | Phase 4 | Pending |
-| LP-04 | Phase 4 | Pending |
+| LP-04 | Phase 4 | Complete |
 | PI-01 | Phase 5 | Pending |
 | PI-02 | Phase 5 | Pending |
 | PI-03 | Phase 5 | Pending |

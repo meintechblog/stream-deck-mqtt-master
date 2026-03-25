@@ -36,7 +36,7 @@
   5. A button with no long-press payload configured ignores long presses entirely
 **Plans:** 2 plans
 Plans:
-- [ ] 04-01-PLAN.md — Fix tsc errors (isKey guard) + add Long Press settings schema and PI fields
+- [x] 04-01-PLAN.md — Fix tsc errors (isKey guard) + add Long Press settings schema and PI fields
 - [ ] 04-02-PLAN.md — Refactor onKeyDown to onKeyUp with long press duration routing
 
 ### Phase 5: PI Redesign

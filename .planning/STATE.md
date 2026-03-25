@@ -2,16 +2,14 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Power Features + Polish
-status: planning
-stopped_at: Phase 4 context gathered
-last_updated: "2026-03-25T23:13:21.950Z"
-last_activity: 2026-03-25 -- v2.0 roadmap created
+status: Ready to execute
+stopped_at: Completed 04-01-PLAN.md
+last_updated: "2026-03-25T23:27:02.864Z"
 progress:
   total_phases: 3
   completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 50
+  total_plans: 2
+  completed_plans: 1
 ---
 
 # Project State
@@ -21,16 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-25)
 
 **Core value:** Ein Button auf dem Stream Deck zeigt den aktuellen MQTT-Status UND kann ihn per Tastendruck aendern -- bidirektional, live, ohne Umwege.
-**Current focus:** Phase 4 - Type Safety + Long Press
+**Current focus:** Phase 04 — type-safety-long-press
 
 ## Current Position
 
-Phase: 4 of 6 (Type Safety + Long Press)
-Plan: 0 of ? in current phase
-Status: Ready to plan
-Last activity: 2026-03-25 -- v2.0 roadmap created
-
-Progress: [######░░░░] 50% (3/6 phases)
+Phase: 04 (type-safety-long-press) — EXECUTING
+Plan: 2 of 2
 
 ## Performance Metrics
 
@@ -49,6 +43,7 @@ Progress: [######░░░░] 50% (3/6 phases)
 | Phase 03 | 3 | 6min | 2.0min |
 
 **v2.0:** No plans executed yet.
+| Phase 04 P01 | 2min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -62,6 +57,8 @@ Recent decisions affecting current work:
 - [v1.0]: CJS output for Rollup, clean:true + explicit resubscribe
 - [v2.0]: Long Press threshold hardcoded at 500ms (configurable deferred)
 - [v2.0]: PI Redesign uses custom CSS over sdpi-components (no framework)
+- [Phase 04]: Use SDK isKey() type guard for setState narrowing instead of type assertion
+- [Phase 04]: Install vitest devDependency + explicit logger type annotation to achieve zero tsc errors
 
 ### Pending Todos
 
@@ -73,6 +70,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-25T23:13:21.945Z
-Stopped at: Phase 4 context gathered
-Resume file: .planning/phases/04-type-safety-long-press/04-CONTEXT.md
+Last session: 2026-03-25T23:27:02.860Z
+Stopped at: Completed 04-01-PLAN.md
+Resume file: None
