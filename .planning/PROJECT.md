@@ -37,7 +37,11 @@ Ein Button auf dem Stream Deck zeigt den aktuellen MQTT-Status UND kann ihn per 
 
 ### Active
 
-(None — next milestone requirements TBD via `/gsd:new-milestone`)
+- [ ] Long Press — langer Tastendruck sendet festes Payload (konfigurierbar, z.B. immer "Aus")
+- [ ] PI Redesign — Property Inspector komplett neu im Dark Theme, lesbare Schrift, moderne Optik
+- [ ] Display Templates — `{{value}} °C` Formatierung, farbkodierte Button-Hintergründe
+- [ ] Multi-Action Button — ein Button publisht an mehrere Topics gleichzeitig
+- [ ] TypeScript Fixes — setState union type Fehler beheben
 
 ### Out of Scope
 
@@ -96,4 +100,16 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-25 after v1.0 milestone*
+## Current Milestone: v2.0 Power Features + Polish
+
+**Goal:** Plugin wird zum vollwertigen Smart Home Controller mit Long Press, Multi-Action, Display Templates und einem PI das nicht wehtut.
+
+**Target features:**
+- Long Press — langer Tastendruck sendet festes Payload (z.B. immer "Aus"), Schwelle konfigurierbar
+- PI Redesign — Property Inspector komplett neu gestaltet, lesbar im Dark Theme, moderne Optik
+- Display Templates — `{{value}} °C`, farbkodierte Button-Hintergründe basierend auf MQTT-Werten
+- Multi-Action Button — ein Button publisht an mehrere Topics gleichzeitig
+- TypeScript Fixes — 7 tsc-Fehler (setState auf union type) aus v1.0 beheben
+
+---
+*Last updated: 2026-03-25 after v2.0 milestone start*

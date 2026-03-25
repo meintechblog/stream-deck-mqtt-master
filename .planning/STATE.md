@@ -1,9 +1,9 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
-status: v1.0 milestone complete
-stopped_at: Completed 03-02-PLAN.md (checkpoint pending)
+milestone: v2.0
+milestone_name: Power Features + Polish
+status: Defining requirements
+stopped_at: null
 last_updated: "2026-03-25T22:33:43.089Z"
 progress:
   total_phases: 3
@@ -19,12 +19,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-25)
 
 **Core value:** Ein Button auf dem Stream Deck zeigt den aktuellen MQTT-Status UND kann ihn per Tastendruck aendern -- bidirektional, live, ohne Umwege.
-**Current focus:** Planning next milestone
+**Current focus:** Defining v2.0 requirements
 
 ## Current Position
 
-Phase: v1.0 complete
-Plan: Next milestone TBD
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-25 — Milestone v2.0 started
 
 ## Performance Metrics
 
