@@ -91,38 +91,38 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CONN-01 | Pending | Pending |
-| CONN-02 | Pending | Pending |
-| CONN-03 | Pending | Pending |
-| CONN-04 | Pending | Pending |
-| CONN-05 | Pending | Pending |
-| CONN-06 | Pending | Pending |
-| PUB-01 | Pending | Pending |
-| PUB-02 | Pending | Pending |
-| PUB-03 | Pending | Pending |
-| SUB-01 | Pending | Pending |
-| SUB-02 | Pending | Pending |
-| SUB-03 | Pending | Pending |
-| SUB-04 | Pending | Pending |
-| TOGL-01 | Pending | Pending |
-| TOGL-02 | Pending | Pending |
-| TOGL-03 | Pending | Pending |
-| UI-01 | Pending | Pending |
-| UI-02 | Pending | Pending |
-| UI-03 | Pending | Pending |
-| UI-04 | Pending | Pending |
-| UI-05 | Pending | Pending |
-| ARCH-01 | Pending | Pending |
-| ARCH-02 | Pending | Pending |
-| ARCH-03 | Pending | Pending |
-| ARCH-04 | Pending | Pending |
-| ARCH-05 | Pending | Pending |
+| CONN-01 | Phase 1 | Pending |
+| CONN-02 | Phase 1 | Pending |
+| CONN-03 | Phase 1 | Pending |
+| CONN-04 | Phase 1 | Pending |
+| CONN-05 | Phase 1 | Pending |
+| CONN-06 | Phase 1 | Pending |
+| PUB-01 | Phase 1 | Pending |
+| PUB-02 | Phase 1 | Pending |
+| PUB-03 | Phase 1 | Pending |
+| SUB-01 | Phase 1 | Pending |
+| SUB-02 | Phase 1 | Pending |
+| SUB-03 | Phase 2 | Pending |
+| SUB-04 | Phase 3 | Pending |
+| TOGL-01 | Phase 2 | Pending |
+| TOGL-02 | Phase 2 | Pending |
+| TOGL-03 | Phase 2 | Pending |
+| UI-01 | Phase 2 | Pending |
+| UI-02 | Phase 2 | Pending |
+| UI-03 | Phase 2 | Pending |
+| UI-04 | Phase 2 | Pending |
+| UI-05 | Phase 3 | Pending |
+| ARCH-01 | Phase 1 | Pending |
+| ARCH-02 | Phase 1 | Pending |
+| ARCH-03 | Phase 1 | Pending |
+| ARCH-04 | Phase 1 | Pending |
+| ARCH-05 | Phase 3 | Pending |
 
 **Coverage:**
 - v1 requirements: 26 total
-- Mapped to phases: 0
-- Unmapped: 26 ⚠️
+- Mapped to phases: 26
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-25*
-*Last updated: 2026-03-25 after initial definition*
+*Last updated: 2026-03-25 after roadmap creation*
