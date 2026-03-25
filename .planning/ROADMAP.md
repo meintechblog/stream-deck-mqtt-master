@@ -45,13 +45,13 @@ Plans:
   3. Toggle state is always derived from the subscribed MQTT topic, not tracked locally (unplugging and replugging the button shows correct state)
   4. User can extract a value from a JSON MQTT payload using a configured JSON path (e.g., `temperature` from `{"temperature": 22.5}` displays as `22.5`)
   5. Button image/state changes visually based on the received MQTT value (distinct appearance for on vs off)
-**Plans**: TBD
+**Plans**: 3 plans
 **UI hint**: yes
 
 Plans:
-- [ ] 02-01: TBD
-- [ ] 02-02: TBD
-- [ ] 02-03: TBD
+- [ ] 02-01-PLAN.md — Extend settings schema, resolveJsonPath utility, full Property Inspector UI
+- [ ] 02-02-PLAN.md — Wire toggle logic, JSON path extraction, setState into MqttAction
+- [ ] 02-03-PLAN.md — Build, deploy to Mac Mini, hardware verification
 
 ### Phase 3: Hardening + Deployment
 **Goal**: Plugin handles edge cases gracefully and runs reliably on the target Mac Mini as a daily-use smart home controller
