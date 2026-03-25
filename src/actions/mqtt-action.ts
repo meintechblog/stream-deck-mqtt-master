@@ -10,6 +10,7 @@ import { connectionManager } from "../services/connection-manager";
 import { topicRouter } from "../services/topic-router";
 import { brokerKey } from "../util/broker-key";
 import { logger } from "../util/logger";
+import { resolveJsonPath, applyDisplayTemplate } from "../util/resolve-json-path";
 import type { MqttActionSettings, BrokerConfig } from "../types/settings";
 
 /**
@@ -35,11 +36,59 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
       return {
         host,
         port: parseInt((settings.brokerPort || "1883").trim(), 10) || 1883,
-        tls: false,
+        username: settings.brokerUsername || undefined,
+        password: settings.brokerPassword || undefined,
+        tls: settings.brokerTls ?? false,
       };
     }
     logger.warn("No broker configured in action settings");
     return null;
+  }
+
+  /**
+   * Build a subscription callback with JSON path extraction, display template,
+   * setState for toggle feedback, and lastValue caching.
+   * Shared by onWillAppear and onDidReceiveSettings to avoid duplication.
+   */
+  private buildSubscriptionCallback(
+    settings: MqttActionSettings,
+    actionRef: WillAppearEvent<MqttActionSettings>["action"],
+  ): (payload: string) => void {
+    return (rawPayload: string) => {
+      // Step 1: Extract value via JSON path (SUB-03, D-16)
+      const extracted = settings.jsonPath
+        ? resolveJsonPath(rawPayload, settings.jsonPath)
+        : rawPayload;
+
+      // Step 2: Apply display template (D-17)
+      const displayValue = settings.displayTemplate
+        ? applyDisplayTemplate(settings.displayTemplate, extracted)
+        : extracted;
+
+      // Step 3: Update button title
+      actionRef.setTitle(displayValue).catch((err: unknown) => {
+        logger.error(`setTitle failed: ${err instanceof Error ? err.message : String(err)}`);
+      });
+
+      // Step 4: Update button state based on onValue/offValue (TOGL-03, D-18)
+      if (settings.onValue && extracted === settings.onValue) {
+        actionRef.setState(1).catch((err: unknown) => {
+          logger.error(`setState(1) failed: ${err instanceof Error ? err.message : String(err)}`);
+        });
+      } else if (settings.offValue && extracted === settings.offValue) {
+        actionRef.setState(0).catch((err: unknown) => {
+          logger.error(`setState(0) failed: ${err instanceof Error ? err.message : String(err)}`);
+        });
+      }
+
+      // Step 5: Cache lastValue only when changed (avoid feedback loop)
+      if (extracted !== settings.lastValue) {
+        settings.lastValue = extracted;
+        actionRef.setSettings({ ...settings, lastValue: extracted }).catch((err: unknown) => {
+          logger.error(`setSettings failed: ${err instanceof Error ? err.message : String(err)}`);
+        });
+      }
+    };
   }
 
   /**
@@ -68,13 +117,7 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
     connectionManager.getOrCreate(config);
 
     if (settings.subscribeTopic) {
-      const actionRef = ev.action;
-      const callback = (payload: string) => {
-        logger.info(`Setting title to "${payload}" on context ${actionRef.id}`);
-        actionRef.setTitle(payload).catch((err: unknown) => {
-          logger.error(`setTitle failed: ${err instanceof Error ? err.message : String(err)}`);
-        });
-      };
+      const callback = this.buildSubscriptionCallback(settings, ev.action);
 
       const isFirst = topicRouter.register(key, settings.subscribeTopic, ev.action.id, callback);
       if (isFirst) {
@@ -85,9 +128,19 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
       this.previousTopics.set(ev.action.id, settings.subscribeTopic);
     }
 
-    // Restore cached value from last session
+    // Restore cached value from last session (apply display template + setState)
     if (settings.lastValue) {
-      await ev.action.setTitle(settings.lastValue);
+      const displayValue = settings.displayTemplate
+        ? applyDisplayTemplate(settings.displayTemplate, settings.lastValue)
+        : settings.lastValue;
+      await ev.action.setTitle(displayValue);
+
+      // Restore toggle state from cached value
+      if (settings.onValue && settings.lastValue === settings.onValue) {
+        await ev.action.setState(1);
+      } else if (settings.offValue && settings.lastValue === settings.offValue) {
+        await ev.action.setState(0);
+      }
     }
   }
 
@@ -102,13 +155,38 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
       return;
     }
 
-    if (settings.publishTopic && settings.publishPayload) {
+    if (!settings.publishTopic) {
+      return;
+    }
+
+    // Determine toggle mode: all four toggle fields must be non-empty (TOGL-01, TOGL-02)
+    const isToggleMode =
+      !!settings.onPayload &&
+      !!settings.offPayload &&
+      !!settings.onValue &&
+      !!settings.offValue;
+
+    let payload: string | undefined;
+
+    if (isToggleMode) {
+      // Toggle: publish opposite of current state
+      // Unknown state defaults to "turn on" (Pitfall 5)
+      payload = settings.lastValue === settings.onValue
+        ? settings.offPayload
+        : settings.onPayload;
+      logger.info(`Toggle mode: lastValue="${settings.lastValue}" -> publishing ${payload === settings.onPayload ? "ON" : "OFF"}`);
+    } else {
+      // Non-toggle: use fixed publishPayload (Phase 1 behavior)
+      payload = settings.publishPayload;
+    }
+
+    if (payload) {
       const client = connectionManager.getOrCreate(config);
-      client.publish(settings.publishTopic, settings.publishPayload, {
+      client.publish(settings.publishTopic, payload, {
         qos: settings.qos ?? 0,
         retain: settings.retain ?? false,
       });
-      logger.info(`Published to ${settings.publishTopic}: ${settings.publishPayload}`);
+      logger.info(`Published to ${settings.publishTopic}: ${payload}`);
     }
   }
 
@@ -159,12 +237,9 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
         }
       }
 
-      // Register new topic
+      // Register new topic with full callback pipeline
       if (newTopic) {
-        const callback = (payload: string) => {
-          ev.action.setTitle(payload);
-          ev.action.setSettings({ ...settings, lastValue: payload });
-        };
+        const callback = this.buildSubscriptionCallback(settings, ev.action);
 
         const isFirst = topicRouter.register(key, newTopic, ev.action.id, callback);
         if (isFirst) {
@@ -175,6 +250,9 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
       } else {
         this.previousTopics.delete(ev.action.id);
       }
+    } else {
+      // Topic unchanged -- likely a lastValue-only update from subscription callback
+      logger.debug("didReceiveSettings: lastValue-only change, skipping re-registration");
     }
   }
 }
