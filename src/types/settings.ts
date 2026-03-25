@@ -25,8 +25,12 @@ export interface BrokerConfig {
   clientId?: string;
 }
 
-// Action Settings -- per button, exported in profiles (no secrets!)
+// Action Settings -- per button, exported in profiles
+// Phase 1: broker config stored here for simplicity (sdpi-components auto-binding)
+// Phase 2: move broker credentials to global settings for security (CONN-06)
 export const MqttActionSettingsSchema = z.object({
+  brokerHost: z.string().optional(),
+  brokerPort: z.string().optional(), // stored as string from PI textfield
   subscribeTopic: z.string().optional(),
   publishTopic: z.string().optional(),
   publishPayload: z.string().optional(),

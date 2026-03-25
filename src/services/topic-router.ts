@@ -75,8 +75,12 @@ class TopicRouter {
    * Dispatch an incoming MQTT message to all subscribed action contexts.
    */
   dispatch(brokerKey: string, topic: string, payload: string): void {
+    logger.info(`dispatch: brokerKey="${brokerKey}" topic="${topic}" payload="${payload}" subs=${JSON.stringify([...this.subscriptions.keys()])}`);
     const contexts = this.subscriptions.get(brokerKey)?.get(topic);
-    if (!contexts || contexts.size === 0) return;
+    if (!contexts || contexts.size === 0) {
+      logger.warn(`No subscribers for ${brokerKey} / ${topic}`);
+      return;
+    }
 
     for (const contextId of contexts) {
       const callback = this.callbacks.get(contextId);

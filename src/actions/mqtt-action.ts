@@ -10,7 +10,7 @@ import { connectionManager } from "../services/connection-manager";
 import { topicRouter } from "../services/topic-router";
 import { brokerKey } from "../util/broker-key";
 import { logger } from "../util/logger";
-import type { GlobalSettings, MqttActionSettings, BrokerConfig } from "../types/settings";
+import type { MqttActionSettings, BrokerConfig } from "../types/settings";
 
 /**
  * Unified MQTT action handling both publish (on key press) and subscribe (on appear).
@@ -25,15 +25,20 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
   private previousTopics = new Map<string, string>();
 
   /**
-   * Read broker config from global settings.
-   * Returns null if no broker is configured.
+   * Read broker config from action settings.
+   * Phase 1: broker config in action settings for sdpi-components auto-binding.
+   * Phase 2: move to global settings for credential security (CONN-06).
    */
-  private async getBrokerConfig(): Promise<BrokerConfig | null> {
-    const globalSettings = await streamDeck.settings.getGlobalSettings<GlobalSettings>();
-    if (globalSettings.broker && globalSettings.broker.host) {
-      return globalSettings.broker;
+  private getBrokerConfigFromSettings(settings: MqttActionSettings): BrokerConfig | null {
+    const host = (settings.brokerHost || "").trim();
+    if (host) {
+      return {
+        host,
+        port: parseInt((settings.brokerPort || "1883").trim(), 10) || 1883,
+        tls: false,
+      };
     }
-    logger.warn("No broker configured in global settings");
+    logger.warn("No broker configured in action settings");
     return null;
   }
 
@@ -42,8 +47,17 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
    * Restores cached lastValue if available.
    */
   override async onWillAppear(ev: WillAppearEvent<MqttActionSettings>): Promise<void> {
-    const config = await this.getBrokerConfig();
     const settings = ev.payload.settings;
+    logger.info(`willAppear settings: ${JSON.stringify(settings)}`);
+
+    // Auto-fix whitespace in saved settings (one-time cleanup)
+    if (settings.brokerHost && settings.brokerHost !== settings.brokerHost.trim()) {
+      settings.brokerHost = settings.brokerHost.trim();
+      await ev.action.setSettings(settings);
+      logger.info("Auto-trimmed brokerHost whitespace in saved settings");
+    }
+
+    const config = this.getBrokerConfigFromSettings(settings);
 
     if (!config) {
       await ev.action.setTitle("No Broker");
@@ -54,9 +68,12 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
     connectionManager.getOrCreate(config);
 
     if (settings.subscribeTopic) {
+      const actionRef = ev.action;
       const callback = (payload: string) => {
-        ev.action.setTitle(payload);
-        ev.action.setSettings({ ...settings, lastValue: payload });
+        logger.info(`Setting title to "${payload}" on context ${actionRef.id}`);
+        actionRef.setTitle(payload).catch((err: unknown) => {
+          logger.error(`setTitle failed: ${err instanceof Error ? err.message : String(err)}`);
+        });
       };
 
       const isFirst = topicRouter.register(key, settings.subscribeTopic, ev.action.id, callback);
@@ -78,8 +95,8 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
    * Publish payload on key press (PUB-01, PUB-02, PUB-03).
    */
   override async onKeyDown(ev: KeyDownEvent<MqttActionSettings>): Promise<void> {
-    const config = await this.getBrokerConfig();
     const settings = ev.payload.settings;
+    const config = this.getBrokerConfigFromSettings(settings);
 
     if (!config) {
       return;
@@ -99,8 +116,8 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
    * Unsubscribe on disappear to clean up resources.
    */
   override async onWillDisappear(ev: WillDisappearEvent<MqttActionSettings>): Promise<void> {
-    const config = await this.getBrokerConfig();
     const settings = ev.payload.settings;
+    const config = this.getBrokerConfigFromSettings(settings);
 
     if (!config) {
       return;
@@ -121,8 +138,9 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
    * Handle live PI changes -- re-register subscriptions when subscribe topic changes.
    */
   override async onDidReceiveSettings(ev: DidReceiveSettingsEvent<MqttActionSettings>): Promise<void> {
-    const config = await this.getBrokerConfig();
     const settings = ev.payload.settings;
+    logger.info(`didReceiveSettings: ${JSON.stringify(settings)}`);
+    const config = this.getBrokerConfigFromSettings(settings);
 
     if (!config) {
       return;

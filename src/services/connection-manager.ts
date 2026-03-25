@@ -21,23 +21,25 @@ class ConnectionManager {
    * Returns existing client if one already exists for this broker.
    */
   getOrCreate(config: BrokerConfig): mqtt.MqttClient {
-    const key = brokerKey(config);
+    // Normalize host to prevent ghost connections from trailing whitespace
+    const normalizedConfig = { ...config, host: config.host.trim() };
+    const key = brokerKey(normalizedConfig);
 
     if (this.clients.has(key)) {
       return this.clients.get(key)!;
     }
 
-    const clientId = config.clientId || `streamdeck-mqtt-${crypto.randomUUID()}`;
-    const protocol = config.tls ? "mqtts" : "mqtt";
+    const clientId = normalizedConfig.clientId || `streamdeck-mqtt-${crypto.randomUUID()}`;
+    const protocol = normalizedConfig.tls ? "mqtts" : "mqtt";
 
     logger.info(`Creating MQTT client for ${key} (clientId=${clientId})`);
 
     const client = mqtt.connect({
       protocol,
-      host: config.host,
-      port: config.port,
-      username: config.username || undefined,
-      password: config.password || undefined,
+      host: normalizedConfig.host,
+      port: normalizedConfig.port,
+      username: normalizedConfig.username || undefined,
+      password: normalizedConfig.password || undefined,
       clientId,
       reconnectPeriod: 5000, // CONN-04: auto-reconnect every 5s
       clean: true, // Pitfall 1: explicit resubscribe is more reliable
