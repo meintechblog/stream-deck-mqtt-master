@@ -53,6 +53,10 @@ export const MqttActionSettingsSchema = z.object({
   onValue: z.string().optional(), // subscribe value meaning "on"
   offValue: z.string().optional(), // subscribe value meaning "off"
 
+  // Long Press (LP-01, D-30)
+  longPressTopic: z.string().optional(),    // separate topic for long press publish
+  longPressPayload: z.string().optional(),  // payload sent on long press (>= 500ms)
+
   // Internal
   lastValue: z.string().optional(), // cached for restart recovery
 });
