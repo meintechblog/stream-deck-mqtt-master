@@ -12,20 +12,35 @@
   <sdpi-item label="Port">
     <sdpi-textfield setting="brokerPort" placeholder="1883"></sdpi-textfield>
   </sdpi-item>
+  <sdpi-item label="Username">
+    <sdpi-textfield setting="brokerUsername" placeholder="optional"></sdpi-textfield>
+  </sdpi-item>
+  <sdpi-item label="Password">
+    <sdpi-password setting="brokerPassword" placeholder="optional"></sdpi-password>
+  </sdpi-item>
+  <sdpi-item label="TLS">
+    <sdpi-checkbox setting="brokerTls"></sdpi-checkbox>
+  </sdpi-item>
 
   <hr />
   <h2>Subscribe</h2>
   <sdpi-item label="Topic">
-    <sdpi-textfield setting="subscribeTopic" placeholder="home/sensor/temperature"></sdpi-textfield>
+    <sdpi-textfield setting="subscribeTopic" placeholder="stat/light/POWER"></sdpi-textfield>
+  </sdpi-item>
+  <sdpi-item label="JSON Path">
+    <sdpi-textfield setting="jsonPath" placeholder="temperature"></sdpi-textfield>
+  </sdpi-item>
+  <sdpi-item label="Display">
+    <sdpi-textfield setting="displayTemplate" placeholder="{{value}} °C"></sdpi-textfield>
   </sdpi-item>
 
   <hr />
   <h2>Publish</h2>
   <sdpi-item label="Topic">
-    <sdpi-textfield setting="publishTopic" placeholder="home/light/toggle"></sdpi-textfield>
+    <sdpi-textfield setting="publishTopic" placeholder="cmnd/light/POWER"></sdpi-textfield>
   </sdpi-item>
   <sdpi-item label="Payload">
-    <sdpi-textfield setting="publishPayload" placeholder="ON"></sdpi-textfield>
+    <sdpi-textfield setting="publishPayload" placeholder="TOGGLE"></sdpi-textfield>
   </sdpi-item>
   <sdpi-item label="QoS">
     <sdpi-select setting="qos">
@@ -36,6 +51,21 @@
   </sdpi-item>
   <sdpi-item label="Retain">
     <sdpi-checkbox setting="retain"></sdpi-checkbox>
+  </sdpi-item>
+
+  <hr />
+  <h2>Toggle</h2>
+  <sdpi-item label="On Payload">
+    <sdpi-textfield setting="onPayload" placeholder="ON"></sdpi-textfield>
+  </sdpi-item>
+  <sdpi-item label="Off Payload">
+    <sdpi-textfield setting="offPayload" placeholder="OFF"></sdpi-textfield>
+  </sdpi-item>
+  <sdpi-item label="On Value">
+    <sdpi-textfield setting="onValue" placeholder="ON"></sdpi-textfield>
+  </sdpi-item>
+  <sdpi-item label="Off Value">
+    <sdpi-textfield setting="offValue" placeholder="OFF"></sdpi-textfield>
   </sdpi-item>
 </body>
 </html>
