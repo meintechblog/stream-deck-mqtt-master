@@ -61,11 +61,11 @@ Plans:
   1. Button shows a visible disconnect indicator when the MQTT broker is unreachable (user knows something is wrong without checking logs)
   2. Removing a button from the Stream Deck layout stops its MQTT subscription; re-adding it resubscribes (no stale subscriptions accumulate)
   3. Plugin is deployed and running on mini-von-jorg-7.local, surviving Stream Deck app restarts, with buttons controlling real MQTT devices
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 03-01: TBD
-- [ ] 03-02: TBD
+- [ ] 03-01-PLAN.md — Disconnect indicator + subscription lifecycle cleanup (UI-05, SUB-04)
+- [ ] 03-02-PLAN.md — Deploy script, packaging, GitHub Release (ARCH-05)
 
 ## Progress
 
