@@ -26,6 +26,20 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
   private previousTopics = new Map<string, string>();
 
   /**
+   * Trim all string fields in settings. sdpi-components textfields often have trailing spaces.
+   */
+  private trimSettings(settings: MqttActionSettings): void {
+    for (const key of ["brokerHost", "brokerPort", "brokerUsername", "brokerPassword",
+      "subscribeTopic", "publishTopic", "publishPayload", "jsonPath", "displayTemplate",
+      "onPayload", "offPayload", "onValue", "offValue"] as const) {
+      const val = settings[key as keyof MqttActionSettings];
+      if (typeof val === "string") {
+        (settings as Record<string, unknown>)[key] = val.trim();
+      }
+    }
+  }
+
+  /**
    * Read broker config from action settings.
    * Phase 1: broker config in action settings for sdpi-components auto-binding.
    * Phase 2: move to global settings for credential security (CONN-06).
@@ -109,18 +123,7 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
     logger.info(`willAppear settings: ${JSON.stringify(settings)}`);
 
     // Auto-fix whitespace in all string settings (PI textfields often have trailing spaces)
-    let needsSave = false;
-    for (const key of ["brokerHost", "brokerPort", "subscribeTopic", "publishTopic", "publishPayload", "jsonPath", "displayTemplate", "onPayload", "offPayload", "onValue", "offValue"] as const) {
-      const val = settings[key as keyof MqttActionSettings];
-      if (typeof val === "string" && val !== val.trim()) {
-        (settings as Record<string, unknown>)[key] = val.trim();
-        needsSave = true;
-      }
-    }
-    if (needsSave) {
-      await ev.action.setSettings(settings);
-      logger.info("Auto-trimmed whitespace in saved settings");
-    }
+    this.trimSettings(settings);
 
     const config = this.getBrokerConfigFromSettings(settings);
 
@@ -168,6 +171,7 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
    */
   override async onKeyDown(ev: KeyDownEvent<MqttActionSettings>): Promise<void> {
     const settings = ev.payload.settings;
+    this.trimSettings(settings);
     const config = this.getBrokerConfigFromSettings(settings);
 
     if (!config) {
@@ -256,6 +260,7 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
 
   private async handleSettingsChange(ev: DidReceiveSettingsEvent<MqttActionSettings>): Promise<void> {
     const settings = ev.payload.settings;
+    this.trimSettings(settings);
     const config = this.getBrokerConfigFromSettings(settings);
 
     if (!config) {
