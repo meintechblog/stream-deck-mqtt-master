@@ -34,7 +34,10 @@
   3. Holding a button for 500ms+ sends the long-press payload to the configured topic
   4. Short press (<500ms) still sends the normal publish/toggle payload unchanged
   5. A button with no long-press payload configured ignores long presses entirely
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 04-01-PLAN.md — Fix tsc errors (isKey guard) + add Long Press settings schema and PI fields
+- [ ] 04-02-PLAN.md — Refactor onKeyDown to onKeyUp with long press duration routing
 
 ### Phase 5: PI Redesign
 **Goal**: Users see a polished, readable Property Inspector that matches the Stream Deck dark aesthetic
@@ -65,6 +68,6 @@
 | 1. Plugin Scaffold + MQTT Core | v1.0 | 2/2 | Complete | 2026-03-25 |
 | 2. Toggle + Settings UI | v1.0 | 3/3 | Complete | 2026-03-25 |
 | 3. Hardening + Deploy | v1.0 | 3/3 | Complete | 2026-03-25 |
-| 4. Type Safety + Long Press | v2.0 | 0/? | Not started | - |
+| 4. Type Safety + Long Press | v2.0 | 0/2 | Planning | - |
 | 5. PI Redesign | v2.0 | 0/? | Not started | - |
 | 6. Display Templates | v2.0 | 0/? | Not started | - |
