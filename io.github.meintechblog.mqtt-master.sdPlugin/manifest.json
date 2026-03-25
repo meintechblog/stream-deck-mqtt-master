@@ -29,6 +29,7 @@
       "Tooltip": "Publish and subscribe to MQTT topics",
       "PropertyInspectorPath": "ui/mqtt-action.html",
       "SupportedInMultiActions": false,
+      "DisableAutomaticStates": true,
       "Controllers": ["Keypad"],
       "States": [
         {
