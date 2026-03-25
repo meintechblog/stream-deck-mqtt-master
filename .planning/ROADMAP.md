@@ -28,12 +28,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. Button title updates in real-time when a subscribed MQTT topic receives a new value (verifiable via `mosquitto_pub`)
   4. After broker goes offline and comes back, plugin reconnects and subscriptions resume delivering values without user intervention
   5. Multiple buttons sharing the same broker use a single TCP connection (verifiable via broker connection count)
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: TBD
-- [ ] 01-02: TBD
-- [ ] 01-03: TBD
+- [ ] 01-01-PLAN.md — Scaffold project, types, ConnectionManager + TopicRouter services
+- [ ] 01-02-PLAN.md — Unified MqttAction, Property Inspector, plugin entry point + build
+- [ ] 01-03-PLAN.md — Deploy to Mac Mini, E2E hardware verification
 
 ### Phase 2: Toggle + Settings UI
 **Goal**: User can configure all button settings through a visual Property Inspector and use toggle buttons that reflect and change MQTT device state
