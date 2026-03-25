@@ -2,6 +2,7 @@ import streamDeck, {
   action,
   SingletonAction,
   type KeyDownEvent,
+  type KeyUpEvent,
   type WillAppearEvent,
   type WillDisappearEvent,
   type DidReceiveSettingsEvent,
@@ -26,6 +27,8 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
   private previousTopics = new Map<string, string>();
   /** In-memory cache of last received MQTT value per context (for toggle decisions) */
   private lastValues = new Map<string, string>();
+  /** Timestamp of last keyDown per context, for long press duration calculation */
+  private keyDownTimestamps = new Map<string, number>();
 
   /**
    * Trim all string fields in settings. sdpi-components textfields often have trailing spaces.
@@ -171,9 +174,19 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
   }
 
   /**
-   * Publish payload on key press (PUB-01, PUB-02, PUB-03).
+   * Record timestamp on key down for long press duration calculation (D-26).
+   * All publish logic fires on KeyUp, never KeyDown.
    */
   override async onKeyDown(ev: KeyDownEvent<MqttActionSettings>): Promise<void> {
+    this.keyDownTimestamps.set(ev.action.id, Date.now());
+  }
+
+  /**
+   * Publish payload on key up with short/long press routing (PUB-01, PUB-02, PUB-03, LP-01, LP-02, LP-03).
+   * Short press (< 500ms): normal publish/toggle logic.
+   * Long press (>= 500ms): send longPressPayload to longPressTopic (D-27, D-29).
+   */
+  override async onKeyUp(ev: KeyUpEvent<MqttActionSettings>): Promise<void> {
     const settings = ev.payload.settings;
     this.trimSettings(settings);
     const config = this.getBrokerConfigFromSettings(settings);
@@ -182,39 +195,61 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
       return;
     }
 
-    if (!settings.publishTopic) {
-      return;
-    }
+    // Calculate press duration (per D-27: 500ms threshold)
+    const downTime = this.keyDownTimestamps.get(ev.action.id);
+    this.keyDownTimestamps.delete(ev.action.id);
+    const duration = downTime ? Date.now() - downTime : 0;
+    const isLongPress = duration >= 500;
 
-    // Determine toggle mode: all four toggle fields must be non-empty (TOGL-01, TOGL-02)
-    const isToggleMode =
-      !!settings.onPayload &&
-      !!settings.offPayload &&
-      !!settings.onValue &&
-      !!settings.offValue;
-
-    let payload: string | undefined;
-
-    if (isToggleMode) {
-      // Toggle: publish opposite of current state using in-memory cache
-      // Unknown state defaults to "turn on" (Pitfall 5)
-      const currentValue = this.lastValues.get(ev.action.id) ?? settings.lastValue;
-      payload = currentValue === settings.onValue
-        ? settings.offPayload
-        : settings.onPayload;
-      logger.info(`Toggle mode: currentValue="${currentValue}" -> publishing ${payload === settings.onPayload ? "ON" : "OFF"}`);
+    if (isLongPress) {
+      // Long press: send longPressPayload to longPressTopic (per D-29: unconditional, no state check)
+      // Per D-28: if no longPressPayload configured, do nothing
+      if (settings.longPressTopic && settings.longPressPayload) {
+        const client = connectionManager.getOrCreate(config);
+        client.publish(settings.longPressTopic, settings.longPressPayload, {
+          qos: settings.qos ?? 0,
+          retain: settings.retain ?? false,
+        });
+        logger.info(`Long press (${duration}ms): published "${settings.longPressPayload}" to ${settings.longPressTopic}`);
+      } else {
+        logger.info(`Long press (${duration}ms): no longPressTopic/Payload configured, ignoring`);
+      }
     } else {
-      // Non-toggle: use fixed publishPayload (Phase 1 behavior)
-      payload = settings.publishPayload;
-    }
+      // Short press: original publish/toggle logic (moved from onKeyDown)
+      if (!settings.publishTopic) {
+        return;
+      }
 
-    if (payload) {
-      const client = connectionManager.getOrCreate(config);
-      client.publish(settings.publishTopic, payload, {
-        qos: settings.qos ?? 0,
-        retain: settings.retain ?? false,
-      });
-      logger.info(`Published to ${settings.publishTopic}: ${payload}`);
+      // Determine toggle mode: all four toggle fields must be non-empty (TOGL-01, TOGL-02)
+      const isToggleMode =
+        !!settings.onPayload &&
+        !!settings.offPayload &&
+        !!settings.onValue &&
+        !!settings.offValue;
+
+      let payload: string | undefined;
+
+      if (isToggleMode) {
+        // Toggle: publish opposite of current state using in-memory cache
+        // Unknown state defaults to "turn on" (Pitfall 5)
+        const currentValue = this.lastValues.get(ev.action.id) ?? settings.lastValue;
+        payload = currentValue === settings.onValue
+          ? settings.offPayload
+          : settings.onPayload;
+        logger.info(`Toggle mode: currentValue="${currentValue}" -> publishing ${payload === settings.onPayload ? "ON" : "OFF"}`);
+      } else {
+        // Non-toggle: use fixed publishPayload (Phase 1 behavior)
+        payload = settings.publishPayload;
+      }
+
+      if (payload) {
+        const client = connectionManager.getOrCreate(config);
+        client.publish(settings.publishTopic, payload, {
+          qos: settings.qos ?? 0,
+          retain: settings.retain ?? false,
+        });
+        logger.info(`Short press (${duration}ms): published "${payload}" to ${settings.publishTopic}`);
+      }
     }
   }
 
@@ -241,6 +276,7 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
 
     // Memory cleanup (SUB-04, Pitfall 6)
     this.lastValues.delete(ev.action.id);
+    this.keyDownTimestamps.delete(ev.action.id);
     const pendingTimer = this.debounceTimers.get(ev.action.id);
     if (pendingTimer) {
       clearTimeout(pendingTimer);
