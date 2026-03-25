@@ -15,6 +15,8 @@ class ConnectionManager {
   private clients = new Map<string, mqtt.MqttClient>();
   // brokerKey -> Set<topic> for resubscription on connect
   private activeTopics = new Map<string, Set<string>>();
+  // brokerKey -> Map<actionId, actionRef> for offline/connect notifications
+  private statusListeners = new Map<string, Map<string, { setTitle: (title: string) => Promise<void> }>>();
 
   /**
    * Get or create an MQTT client for the given broker config.
@@ -56,6 +58,14 @@ class ConnectionManager {
         logger.info(`Resubscribing ${topicList.length} topics on ${key}`);
         client.subscribe(topicList);
       }
+
+      // Clear offline indicator on all registered actions (retained messages restore real value)
+      const connectListeners = this.statusListeners.get(key);
+      if (connectListeners) {
+        for (const [, actionRef] of connectListeners) {
+          actionRef.setTitle("").catch(() => {});
+        }
+      }
     });
 
     // Route incoming messages to TopicRouter for dispatch to action contexts
@@ -70,6 +80,14 @@ class ConnectionManager {
 
     client.on("offline", () => {
       logger.warn(`MQTT client offline: ${key}`);
+
+      // Notify all registered actions about broker disconnect
+      const offlineListeners = this.statusListeners.get(key);
+      if (offlineListeners) {
+        for (const [, actionRef] of offlineListeners) {
+          actionRef.setTitle("! Offline").catch(() => {});
+        }
+      }
     });
 
     client.on("reconnect", () => {
@@ -80,6 +98,30 @@ class ConnectionManager {
     this.activeTopics.set(key, new Set());
 
     return client;
+  }
+
+  /**
+   * Register an action to receive broker status notifications (offline/connect).
+   */
+  registerActionForStatus(brokerKeyStr: string, actionId: string, actionRef: { setTitle: (title: string) => Promise<void> }): void {
+    let listeners = this.statusListeners.get(brokerKeyStr);
+    if (!listeners) {
+      listeners = new Map();
+      this.statusListeners.set(brokerKeyStr, listeners);
+    }
+    listeners.set(actionId, actionRef);
+  }
+
+  /**
+   * Unregister an action from broker status notifications.
+   */
+  unregisterActionForStatus(brokerKeyStr: string, actionId: string): void {
+    const listeners = this.statusListeners.get(brokerKeyStr);
+    if (!listeners) return;
+    listeners.delete(actionId);
+    if (listeners.size === 0) {
+      this.statusListeners.delete(brokerKeyStr);
+    }
   }
 
   /**
@@ -136,6 +178,7 @@ class ConnectionManager {
     }
     this.clients.clear();
     this.activeTopics.clear();
+    this.statusListeners.clear();
     logger.info("ConnectionManager reset -- all connections closed");
   }
 }
