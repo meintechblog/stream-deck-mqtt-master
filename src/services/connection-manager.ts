@@ -60,6 +60,7 @@ class ConnectionManager {
 
     // Route incoming messages to TopicRouter for dispatch to action contexts
     client.on("message", (topic: string, payload: Buffer) => {
+      logger.info(`MQTT message on ${key}: ${topic} = ${payload.toString().substring(0, 80)}`);
       topicRouter.dispatch(key, topic, payload.toString());
     });
 
@@ -95,9 +96,12 @@ class ConnectionManager {
     if (!topics.has(topic)) {
       topics.add(topic);
       const client = this.clients.get(brokerKeyStr);
+      logger.info(`ensureSubscribed: topic="${topic}" broker="${brokerKeyStr}" connected=${client?.connected}`);
       if (client?.connected) {
-        client.subscribe(topic);
-        logger.debug(`Subscribed to ${topic} on ${brokerKeyStr}`);
+        client.subscribe(topic, (err) => {
+          if (err) logger.error(`Subscribe error for ${topic}: ${err.message}`);
+          else logger.info(`Subscribed OK: ${topic} on ${brokerKeyStr}`);
+        });
       }
       // If not connected yet, will be subscribed on 'connect' event
     }

@@ -24,6 +24,8 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
    * in onDidReceiveSettings to unregister old and register new topic.
    */
   private previousTopics = new Map<string, string>();
+  /** In-memory cache of last received MQTT value per context (for toggle decisions) */
+  private lastValues = new Map<string, string>();
 
   /**
    * Trim all string fields in settings. sdpi-components textfields often have trailing spaces.
@@ -92,12 +94,10 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
       // - Only offValue set: match = off, everything else = on
       // - Only onValue set: match = on, everything else = off
       if (settings.onValue && settings.offValue) {
-        // Both defined: exact match
-        if (extracted === settings.onValue) {
-          actionRef.setState(1).catch(() => {});
-        } else if (extracted === settings.offValue) {
-          actionRef.setState(0).catch(() => {});
-        }
+        // Both defined: onValue = on, everything else = off
+        const newState = extracted === settings.onValue ? 1 : 0;
+        actionRef.setState(newState).catch(() => {});
+        logger.info(`setState(${newState}) for extracted="${extracted}" onValue="${settings.onValue}"`);
       } else if (settings.offValue && !settings.onValue) {
         // Only offValue: match = off, anything else = on
         actionRef.setState(extracted === settings.offValue ? 0 : 1).catch(() => {});
@@ -106,11 +106,9 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
         actionRef.setState(extracted === settings.onValue ? 1 : 0).catch(() => {});
       }
 
-      // Step 5: Update lastValue in the captured settings reference
-      // NOTE: We do NOT call setSettings() here — it would overwrite any PI changes
-      // the user made since this callback was created. lastValue is cached in memory
-      // and will be persisted on next didReceiveSettings or willDisappear.
+      // Step 5: Cache lastValue in memory map (avoids setSettings/getSettings side effects)
       settings.lastValue = extracted;
+      this.lastValues.set(actionRef.id, extracted);
     };
   }
 
@@ -192,12 +190,13 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
     let payload: string | undefined;
 
     if (isToggleMode) {
-      // Toggle: publish opposite of current state
+      // Toggle: publish opposite of current state using in-memory cache
       // Unknown state defaults to "turn on" (Pitfall 5)
-      payload = settings.lastValue === settings.onValue
+      const currentValue = this.lastValues.get(ev.action.id) ?? settings.lastValue;
+      payload = currentValue === settings.onValue
         ? settings.offPayload
         : settings.onPayload;
-      logger.info(`Toggle mode: lastValue="${settings.lastValue}" -> publishing ${payload === settings.onPayload ? "ON" : "OFF"}`);
+      logger.info(`Toggle mode: currentValue="${currentValue}" -> publishing ${payload === settings.onPayload ? "ON" : "OFF"}`);
     } else {
       // Non-toggle: use fixed publishPayload (Phase 1 behavior)
       payload = settings.publishPayload;
