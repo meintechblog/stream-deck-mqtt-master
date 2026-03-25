@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+<head lang="en">
+  <meta charset="utf-8" />
+  <script src="https://sdpi-components.dev/releases/v3/sdpi-components.js"></script>
+</head>
+<body>
+  <h2>Broker</h2>
+  <sdpi-item label="Host">
+    <sdpi-textfield id="broker-host" placeholder="192.168.3.8"></sdpi-textfield>
+  </sdpi-item>
+  <sdpi-item label="Port">
+    <sdpi-textfield id="broker-port" placeholder="1883"></sdpi-textfield>
+  </sdpi-item>
+
+  <hr />
+  <h2>Subscribe</h2>
+  <sdpi-item label="Topic">
+    <sdpi-textfield setting="subscribeTopic" placeholder="home/sensor/temperature"></sdpi-textfield>
+  </sdpi-item>
+
+  <hr />
+  <h2>Publish</h2>
+  <sdpi-item label="Topic">
+    <sdpi-textfield setting="publishTopic" placeholder="home/light/toggle"></sdpi-textfield>
+  </sdpi-item>
+  <sdpi-item label="Payload">
+    <sdpi-textfield setting="publishPayload" placeholder="ON"></sdpi-textfield>
+  </sdpi-item>
+  <sdpi-item label="QoS">
+    <sdpi-select setting="qos">
+      <option value="0">0 - At most once</option>
+      <option value="1">1 - At least once</option>
+      <option value="2">2 - Exactly once</option>
+    </sdpi-select>
+  </sdpi-item>
+  <sdpi-item label="Retain">
+    <sdpi-checkbox setting="retain"></sdpi-checkbox>
+  </sdpi-item>
+
+  <script>
+    // Global settings for broker config (not auto-bound by sdpi-components)
+    const hostField = document.getElementById("broker-host");
+    const portField = document.getElementById("broker-port");
+
+    // Load global settings on PI open
+    SDPIComponents.streamDeckClient.getGlobalSettings().then((globalSettings) => {
+      if (globalSettings.broker) {
+        hostField.value = globalSettings.broker.host || "";
+        portField.value = String(globalSettings.broker.port || 1883);
+      }
+    });
+
+    // Save global settings on change
+    function saveBrokerSettings() {
+      SDPIComponents.streamDeckClient.getGlobalSettings().then((globalSettings) => {
+        const broker = globalSettings.broker || {};
+        broker.host = hostField.value;
+        broker.port = parseInt(portField.value, 10) || 1883;
+        SDPIComponents.streamDeckClient.setGlobalSettings({ ...globalSettings, broker });
+      });
+    }
+
+    hostField.addEventListener("change", saveBrokerSettings);
+    portField.addEventListener("change", saveBrokerSettings);
+  </script>
+</body>
+</html>

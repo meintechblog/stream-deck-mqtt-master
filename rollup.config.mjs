@@ -11,7 +11,10 @@ export default {
     sourcemap: true,
   },
   plugins: [
-    typescript(),
+    typescript({
+      outDir: "io.github.meintechblog.mqtt-master.sdPlugin/bin",
+      declaration: false,
+    }),
     resolve({ preferBuiltins: true }),
     commonjs(),
     json(),
