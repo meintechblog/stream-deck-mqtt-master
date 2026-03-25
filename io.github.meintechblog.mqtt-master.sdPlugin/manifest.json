@@ -18,8 +18,14 @@
     "MinimumVersion": "6.6"
   },
   "OS": [
-    { "Platform": "mac", "MinimumVersion": "13" },
-    { "Platform": "windows", "MinimumVersion": "10" }
+    {
+      "Platform": "mac",
+      "MinimumVersion": "13"
+    },
+    {
+      "Platform": "windows",
+      "MinimumVersion": "10"
+    }
   ],
   "Actions": [
     {
@@ -30,7 +36,9 @@
       "PropertyInspectorPath": "ui/mqtt-action.html",
       "SupportedInMultiActions": false,
       "DisableAutomaticStates": true,
-      "Controllers": ["Keypad"],
+      "Controllers": [
+        "Keypad"
+      ],
       "States": [
         {
           "Image": "imgs/state-off",

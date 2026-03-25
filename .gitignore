@@ -2,3 +2,4 @@ node_modules/
 dist/
 io.github.meintechblog.mqtt-master.sdPlugin/bin/
 *.js.map
+*.streamDeckPlugin
