@@ -47,7 +47,9 @@ Plans:
   1. All PI text is clearly readable (light text on dark background, no low-contrast elements)
   2. Broker, Publish, Subscribe, Toggle, and Long Press sections are visually separated with clear headings
   3. PI styling extends beyond default sdpi-components with custom CSS for a modern look
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 05-01-PLAN.md — Dark theme CSS + accordion HTML restructure with advanced toggles
 **UI hint**: yes
 
 ### Phase 6: Display Templates
@@ -69,5 +71,5 @@ Plans:
 | 2. Toggle + Settings UI | v1.0 | 3/3 | Complete | 2026-03-25 |
 | 3. Hardening + Deploy | v1.0 | 3/3 | Complete | 2026-03-25 |
 | 4. Type Safety + Long Press | v2.0 | 0/2 | Planning | - |
-| 5. PI Redesign | v2.0 | 0/? | Not started | - |
+| 5. PI Redesign | v2.0 | 0/1 | Planned | - |
 | 6. Display Templates | v2.0 | 0/? | Not started | - |
