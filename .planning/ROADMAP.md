@@ -37,7 +37,7 @@
 **Plans:** 2 plans
 Plans:
 - [x] 04-01-PLAN.md — Fix tsc errors (isKey guard) + add Long Press settings schema and PI fields
-- [ ] 04-02-PLAN.md — Refactor onKeyDown to onKeyUp with long press duration routing
+- [x] 04-02-PLAN.md — Refactor onKeyDown to onKeyUp with long press duration routing
 
 ### Phase 5: PI Redesign
 **Goal**: Users see a polished, readable Property Inspector that matches the Stream Deck dark aesthetic

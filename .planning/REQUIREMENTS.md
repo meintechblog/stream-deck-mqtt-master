@@ -8,9 +8,9 @@
 
 ### Long Press
 
-- [ ] **LP-01**: Langer Tastendruck (≥500ms) sendet konfigurierbares Long-Press-Payload an konfigurierbares Topic
-- [ ] **LP-02**: Kurzer Tastendruck (<500ms) verhält sich wie bisher (normaler Publish/Toggle)
-- [ ] **LP-03**: Wenn kein Long-Press-Payload konfiguriert ist, passiert bei langem Druck nichts
+- [x] **LP-01**: Langer Tastendruck (≥500ms) sendet konfigurierbares Long-Press-Payload an konfigurierbares Topic
+- [x] **LP-02**: Kurzer Tastendruck (<500ms) verhält sich wie bisher (normaler Publish/Toggle)
+- [x] **LP-03**: Wenn kein Long-Press-Payload konfiguriert ist, passiert bei langem Druck nichts
 - [x] **LP-04**: Property Inspector hat Felder für Long-Press Topic und Long-Press Payload
 
 ### Property Inspector Redesign
@@ -63,9 +63,9 @@
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | QUAL-01 | Phase 4 | Complete |
-| LP-01 | Phase 4 | Pending |
-| LP-02 | Phase 4 | Pending |
-| LP-03 | Phase 4 | Pending |
+| LP-01 | Phase 4 | Complete |
+| LP-02 | Phase 4 | Complete |
+| LP-03 | Phase 4 | Complete |
 | LP-04 | Phase 4 | Complete |
 | PI-01 | Phase 5 | Pending |
 | PI-02 | Phase 5 | Pending |
