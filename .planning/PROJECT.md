@@ -12,7 +12,9 @@ Ein Button auf dem Stream Deck zeigt den aktuellen MQTT-Status UND kann ihn per 
 
 ### Validated
 
-(None yet — ship to validate)
+- [x] Plugin zeigt sichtbaren Disconnect-Indikator wenn Broker unerreichbar (Phase 3: SUB-04, UI-05)
+- [x] Button-Entfernung stoppt MQTT-Subscription, Wieder-Hinzufügen resubscribt (Phase 3: SUB-04)
+- [x] Plugin kann lokal deployed werden auf macOS (Phase 3: ARCH-05)
 
 ### Active
 
@@ -44,7 +46,8 @@ Ein Button auf dem Stream Deck zeigt den aktuellen MQTT-Status UND kann ihn per 
 - **MQTT Client:** `mqtt` npm-Package (unterstützt TCP, TLS, Auth, Reconnect)
 - **Bestehendes Plugin:** Marketplace hat nur Publish-only Plugin (keine Subscribe-Funktion)
 - **Vorteil:** Unser Plugin nutzt nativen TCP-MQTT (Port 1883), kein WebSocket nötig
-- **Distribution:** Erstmal lokales Deployment, später Elgato Marketplace
+- **Distribution:** GitHub Release v0.1.0 auf meintechblog/stream-deck-mqtt-master, Elgato Marketplace deferred
+- **Deployment:** `npm run deploy` für Mac Mini, `npm run package` für .streamDeckPlugin Installer
 
 ## Constraints
 
@@ -81,4 +84,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-25 after initialization*
+*Last updated: 2026-03-25 after Phase 3 completion*
