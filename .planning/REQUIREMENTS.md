@@ -15,9 +15,9 @@
 
 ### Property Inspector Redesign
 
-- [ ] **PI-01**: PI hat lesbaren, hellen Text auf dunklem Hintergrund (passend zum Stream Deck Dark Theme)
-- [ ] **PI-02**: Sections sind visuell klar getrennt (Broker, Publish, Subscribe, Toggle, Long Press)
-- [ ] **PI-03**: PI nutzt Custom CSS über sdpi-components hinaus für modernes Erscheinungsbild
+- [x] **PI-01**: PI hat lesbaren, hellen Text auf dunklem Hintergrund (passend zum Stream Deck Dark Theme)
+- [x] **PI-02**: Sections sind visuell klar getrennt (Broker, Publish, Subscribe, Toggle, Long Press)
+- [x] **PI-03**: PI nutzt Custom CSS über sdpi-components hinaus für modernes Erscheinungsbild
 
 ### Display
 
@@ -67,9 +67,9 @@
 | LP-02 | Phase 4 | Complete |
 | LP-03 | Phase 4 | Complete |
 | LP-04 | Phase 4 | Complete |
-| PI-01 | Phase 5 | Pending |
-| PI-02 | Phase 5 | Pending |
-| PI-03 | Phase 5 | Pending |
+| PI-01 | Phase 5 | Complete |
+| PI-02 | Phase 5 | Complete |
+| PI-03 | Phase 5 | Complete |
 | DISP-01 | Phase 6 | Pending |
 | DISP-02 | Phase 6 | Pending |
 

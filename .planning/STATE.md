@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Power Features + Polish
-status: Ready to plan
-stopped_at: Phase 5 context gathered
-last_updated: "2026-03-25T23:45:10.267Z"
+status: Phase complete — ready for verification
+stopped_at: Completed 05-01-PLAN.md
+last_updated: "2026-03-26T06:34:52.246Z"
 progress:
   total_phases: 3
-  completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
+  completed_phases: 2
+  total_plans: 3
+  completed_plans: 3
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-25)
 
 **Core value:** Ein Button auf dem Stream Deck zeigt den aktuellen MQTT-Status UND kann ihn per Tastendruck aendern -- bidirektional, live, ohne Umwege.
-**Current focus:** Phase 04 — type-safety-long-press
+**Current focus:** Phase 05 — pi-redesign
 
 ## Current Position
 
-Phase: 5
-Plan: Not started
+Phase: 05 (pi-redesign) — EXECUTING
+Plan: 1 of 1
 
 ## Performance Metrics
 
@@ -45,6 +45,7 @@ Plan: Not started
 **v2.0:** No plans executed yet.
 | Phase 04 P01 | 2min | 2 tasks | 4 files |
 | Phase 04 P02 | 1min | 1 tasks | 1 files |
+| Phase 05 P01 | 3min | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -61,6 +62,8 @@ Recent decisions affecting current work:
 - [Phase 04]: Use SDK isKey() type guard for setState narrowing instead of type assertion
 - [Phase 04]: Install vitest devDependency + explicit logger type annotation to achieve zero tsc errors
 - [Phase 04]: All publish logic fires on KeyUp, onKeyDown only records timestamp (D-26)
+- [Phase 05]: CSS custom property overrides on :root for sdpi-components dark theme
+- [Phase 05]: Native details/summary for accordion sections (zero JS, browser-native)
 
 ### Pending Todos
 
@@ -72,6 +75,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-25T23:45:10.260Z
-Stopped at: Phase 5 context gathered
-Resume file: .planning/phases/05-pi-redesign/05-CONTEXT.md
+Last session: 2026-03-26T06:34:52.243Z
+Stopped at: Completed 05-01-PLAN.md
+Resume file: None

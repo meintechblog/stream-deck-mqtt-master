@@ -49,7 +49,7 @@ Plans:
   3. PI styling extends beyond default sdpi-components with custom CSS for a modern look
 **Plans:** 1 plan
 Plans:
-- [ ] 05-01-PLAN.md — Dark theme CSS + accordion HTML restructure with advanced toggles
+- [x] 05-01-PLAN.md — Dark theme CSS + accordion HTML restructure with advanced toggles
 **UI hint**: yes
 
 ### Phase 6: Display Templates
