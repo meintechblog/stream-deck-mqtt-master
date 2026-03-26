@@ -46,6 +46,45 @@
 
 ---
 
+## Milestone: v2.0 — Power Features + Polish
+
+**Shipped:** 2026-03-26
+**Phases:** 3 | **Plans:** 3 | **Sessions:** ~1
+
+### What Was Built
+- Long Press: onKeyDown→onKeyUp refactor, 500ms threshold, separate topic+payload
+- PI Redesign: Dark theme CSS, 5 accordion sections, advanced field toggles
+- TypeScript fixes: isKey() type guards on all setState calls, zero tsc errors
+- Phase 6 (Display Templates) skipped — already implemented in v1.0
+
+### What Worked
+- Discuss-phase caught the KeyUp-first trigger model — saved a refactor later
+- User testing Loxone during discuss-phase resolved the state-check question definitively
+- Phase 6 skip saved a full plan-execute-verify cycle for zero-value work
+- PI research found the exact CSS custom properties to override — no trial and error
+
+### What Was Inefficient
+- Display Templates were planned as a v2 phase despite being in v1.0 already (D-17) — requirements review should have caught this
+- Multi-Action was scoped into v2 during new-milestone then immediately removed — should have been filtered earlier
+
+### Patterns Established
+- `isKey()` type guard pattern for KeyAction-only plugins
+- `keyDownTimestamps` Map for press duration measurement
+- `<details>`/`<summary>` for PI accordion (no JS needed)
+- Advanced toggle via nested `<details class="advanced">`
+
+### Key Lessons
+1. Check existing codebase before defining requirements — avoids planning already-shipped features
+2. KeyUp-first for all publish actions is simpler than KeyDown with cancel logic
+3. PI theming via CSS custom property overrides is the right approach for sdpi-components
+
+### Cost Observations
+- Model mix: ~70% opus (execution), ~30% sonnet (verification)
+- Sessions: ~1 (entire v2.0 in one session)
+- Notable: Phase 6 skip saved ~50% of expected v2.0 cost
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -53,14 +92,17 @@
 | Milestone | Sessions | Phases | Key Change |
 |-----------|----------|--------|------------|
 | v1.0 | ~4 | 3 | Initial process — established patterns |
+| v2.0 | ~1 | 3 | Phase skip for pre-existing features, KeyUp-first pattern |
 
 ### Cumulative Quality
 
 | Milestone | Tests | Coverage | Zero-Dep Additions |
 |-----------|-------|----------|-------------------|
 | v1.0 | 12 (resolveJsonPath) | Low | 0 (mqtt, zod pending) |
+| v2.0 | 12 (unchanged) | Low | 0 |
 
 ### Top Lessons (Verified Across Milestones)
 
-1. Right-sized phases (3-4 plans each) enable single-session execution
+1. Right-sized phases (1-3 plans each) enable single-session execution
 2. Research phases pay for themselves by catching integration pitfalls early
+3. Check existing codebase before defining requirements — avoids planning shipped features

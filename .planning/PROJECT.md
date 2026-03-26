@@ -10,9 +10,10 @@ Ein Button auf dem Stream Deck zeigt den aktuellen MQTT-Status UND kann ihn per 
 
 ## Current State
 
-**Shipped:** v1.0 MVP (2026-03-25)
-**GitHub:** meintechblog/stream-deck-mqtt-master (v0.1.0 Release)
-**Codebase:** 814 LOC TypeScript, 60 files
+**Shipped:** v2.0 Power Features + Polish (2026-03-26)
+**Previous:** v1.0 MVP (2026-03-25)
+**GitHub:** meintechblog/stream-deck-mqtt-master
+**Codebase:** 859 LOC TypeScript
 **Deployed:** Mac Mini (mini-von-jorg-7.local) via `npm run deploy`
 
 ## Requirements
@@ -21,95 +22,73 @@ Ein Button auf dem Stream Deck zeigt den aktuellen MQTT-Status UND kann ihn per 
 
 - ✓ Plugin verbindet sich mit einem MQTT-Broker (TCP, optional TLS) — v1.0
 - ✓ Broker-Verbindung konfigurierbar: Host, Port, optional Username/Passwort — v1.0
-- ✓ Button-Druck sendet konfigurierbares Payload an ein konfigurierbares MQTT-Topic (Publish) — v1.0
-- ✓ Button abonniert ein konfigurierbares MQTT-Topic und aktualisiert sich bei Änderungen (Subscribe) — v1.0
-- ✓ Button-Text zeigt den aktuellen Wert des abonnierten Topics an (dynamischer Titel) — v1.0
-- ✓ Button-Bild/State ändert sich basierend auf dem empfangenen MQTT-Wert (z.B. an/aus) — v1.0
-- ✓ Toggle-Modus: Button zeigt aktuellen State und toggled beim Drücken zwischen zwei Werten — v1.0
+- ✓ Button-Druck sendet konfigurierbares Payload an ein konfigurierbares MQTT-Topic — v1.0
+- ✓ Button abonniert ein konfigurierbares MQTT-Topic und aktualisiert sich live — v1.0
+- ✓ Button-Text zeigt den aktuellen Wert des abonnierten Topics an — v1.0
+- ✓ Button-State ändert sich basierend auf empfangenem MQTT-Wert — v1.0
+- ✓ Toggle-Modus mit konfigurierbaren On/Off-Werten — v1.0
 - ✓ Mehrere Buttons können denselben oder verschiedene Broker nutzen — v1.0
-- ✓ Property Inspector UI zur Konfiguration pro Button (Broker, Topics, Payloads, QoS) — v1.0
-- ✓ Plugin läuft als persistenter Node.js-Prozess mit stabiler MQTT-Verbindung — v1.0
-- ✓ Reconnect-Logik bei Verbindungsverlust zum Broker — v1.0
-- ✓ Kompatibel mit Stream Deck MK.2 (15 Tasten) und Stream Deck XL (32 Tasten) — v1.0
-- ✓ Plugin zeigt sichtbaren Disconnect-Indikator wenn Broker unerreichbar — v1.0
-- ✓ Button-Entfernung stoppt MQTT-Subscription, Wieder-Hinzufügen resubscribt — v1.0
-- ✓ Plugin kann lokal deployed werden auf macOS — v1.0
+- ✓ Property Inspector UI zur Konfiguration pro Button — v1.0
+- ✓ Persistenter Node.js-Prozess mit stabiler MQTT-Verbindung — v1.0
+- ✓ Auto-Reconnect bei Verbindungsverlust — v1.0
+- ✓ Kompatibel mit Stream Deck MK.2 und XL — v1.0
+- ✓ Disconnect-Indikator auf Buttons — v1.0
+- ✓ Subscription Lifecycle (willAppear/willDisappear) — v1.0
+- ✓ macOS Deployment — v1.0
+- ✓ `tsc --noEmit` fehlerfrei (isKey() type guards) — v2.0
+- ✓ Long Press: 500ms Threshold, eigenes Topic+Payload, opt-in — v2.0
+- ✓ PI Redesign: Dark Theme, Accordion Sections, Advanced Toggles — v2.0
+- ✓ Display Templates: `{{value}} °C` Substitution — v1.0 (D-17)
 
 ### Active
 
-- [ ] Long Press — langer Tastendruck sendet festes Payload (konfigurierbar, z.B. immer "Aus")
-- [ ] PI Redesign — Property Inspector komplett neu im Dark Theme, lesbare Schrift, moderne Optik
-- [ ] Display Templates — `{{value}} °C` Formatierung, farbkodierte Button-Hintergründe
-- [ ] Multi-Action Button — ein Button publisht an mehrere Topics gleichzeitig
-- [ ] TypeScript Fixes — setState union type Fehler beheben
+(None — next milestone requirements TBD via `/gsd:new-milestone`)
 
 ### Out of Scope
 
-- WebSocket-only MQTT (wir nutzen native TCP via Node.js — kein Browser-Kontext) — unnötig
-- Home Assistant-spezifische Integration (Plugin ist generisch MQTT) — zu eng gekoppelt
-- Stream Deck Mobile App Support — anderes SDK, anderer Kontext
-- Stream Deck + Dial/Touchscreen-Support — v1 fokussiert auf LCD-Tasten
+- WebSocket-only MQTT — Node.js nutzt native TCP
+- Home Assistant-spezifische Integration — Plugin ist generisch MQTT
+- Stream Deck Mobile App Support — anderes SDK
+- Stream Deck + Dial/Touchscreen-Support — LCD-Tasten Only
+- Multi-Action Button — aus v2.0 Scope entfernt (nicht benötigt)
+- Konfigurierbarer Long-Press Threshold — v2 nutzt feste 500ms
 
 ## Context
 
-- **Broker:** Mosquitto auf 192.168.3.8:1883, kein Auth (aber Auth-Support im Plugin nötig)
+- **Broker:** Mosquitto auf 192.168.3.8:1883
 - **Stream Deck Modelle:** MK.2 (15 Tasten) und XL (32 Tasten)
-- **SDK:** Elgato Stream Deck SDK v2 (`@elgato/streamdeck`), Node.js 20+, TypeScript
-- **MQTT Client:** `mqtt` npm-Package (unterstützt TCP, TLS, Auth, Reconnect)
-- **Distribution:** GitHub Release v0.1.0 auf meintechblog/stream-deck-mqtt-master, Elgato Marketplace deferred
-- **Deployment:** `npm run deploy` für Mac Mini, `npm run package` für .streamDeckPlugin Installer
-- **Known Issue:** `tsc --noEmit` meldet 7 Fehler (setState auf union type) — Rollup Build funktioniert
+- **SDK:** Elgato Stream Deck SDK v2, Node.js 20+, TypeScript
+- **MQTT Client:** `mqtt` npm-Package
+- **Distribution:** GitHub Release auf meintechblog/stream-deck-mqtt-master
+- **Deployment:** `npm run deploy` für Mac Mini, `npm run package` für .streamDeckPlugin
 
 ## Constraints
 
-- **SDK**: Elgato Stream Deck SDK v2 (`@elgato/streamdeck`) — Pflicht für Plugin-Kompatibilität
-- **Runtime**: Node.js 20+ (von Stream Deck mitgeliefert) — keine externe Node.js-Installation nötig
-- **Sprache**: TypeScript — SDK-Standard, Type Safety
-- **Platform**: macOS (primär, Nutzer hat Mac), Windows-Kompatibilität wünschenswert
-- **MQTT**: `mqtt` npm-Package — bewährter Standard, TCP + TLS + Auth + Auto-Reconnect
+- **SDK**: Elgato Stream Deck SDK v2 (`@elgato/streamdeck`)
+- **Runtime**: Node.js 20+ (von Stream Deck mitgeliefert)
+- **Sprache**: TypeScript
+- **Platform**: macOS (primär), Windows-Kompatibilität wünschenswert
+- **MQTT**: `mqtt` npm-Package
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Native TCP statt WebSocket | Node.js-Plugin kann direkt TCP nutzen, kein Browser-Kontext | ✓ Good |
-| Elgato SDK v2 | Aktuelles SDK mit TypeScript-Support und Node.js Runtime | ✓ Good |
-| `mqtt` npm-Package | Standard-MQTT-Client für Node.js, voller Feature-Support | ✓ Good |
-| Generisches MQTT statt HA-spezifisch | Flexibler, nicht an eine Plattform gebunden | ✓ Good |
-| Unified Action (eine Action für alle Modi) | Einfacher für User, weniger Code-Duplikation | ✓ Good |
-| Broker-Credentials in Global Settings | Sicherheit: nicht in exportierbaren Action Settings | ✓ Good |
-| ConnectionManager Singleton mit Per-Broker Pooling | Effizient: eine TCP-Verbindung pro Broker | ✓ Good |
+| Native TCP statt WebSocket | Node.js kann direkt TCP nutzen | ✓ Good |
+| Elgato SDK v2 | TypeScript-Support, Node.js Runtime | ✓ Good |
+| `mqtt` npm-Package | Standard-Client, voller Feature-Support | ✓ Good |
+| Generisches MQTT statt HA-spezifisch | Flexibler, nicht an Plattform gebunden | ✓ Good |
+| Unified Action | Eine Action für alle Modi | ✓ Good |
+| ConnectionManager Singleton | Per-Broker Pooling, effizient | ✓ Good |
 | CJS Output für Rollup | Kompatibel mit Stream Deck Runtime | ✓ Good |
-| sdpi-components für Property Inspector | Standard Elgato UI, kein Framework nötig | ✓ Good |
+| sdpi-components + Custom CSS | Standard Elgato UI + eigenes Dark Theme | ✓ Good |
+| All publish on KeyUp | Ermöglicht Short/Long Press Unterscheidung | ✓ Good |
+| `<details>/<summary>` Accordion | Pure HTML, kein Framework für PI | ✓ Good |
+| Long Press blind send | Loxone changeTo/off ist idempotent | ✓ Good |
 
 ## Evolution
 
 This document evolves at phase transitions and milestone boundaries.
 
-**After each phase transition** (via `/gsd:transition`):
-1. Requirements invalidated? → Move to Out of Scope with reason
-2. Requirements validated? → Move to Validated with phase reference
-3. New requirements emerged? → Add to Active
-4. Decisions to log? → Add to Key Decisions
-5. "What This Is" still accurate? → Update if drifted
-
-**After each milestone** (via `/gsd:complete-milestone`):
-1. Full review of all sections
-2. Core Value check — still the right priority?
-3. Audit Out of Scope — reasons still valid?
-4. Update Context with current state
-
 ---
-## Current Milestone: v2.0 Power Features + Polish
-
-**Goal:** Plugin wird zum vollwertigen Smart Home Controller mit Long Press, Multi-Action, Display Templates und einem PI das nicht wehtut.
-
-**Target features:**
-- Long Press — langer Tastendruck sendet festes Payload (z.B. immer "Aus"), Schwelle konfigurierbar
-- PI Redesign — Property Inspector komplett neu gestaltet, lesbar im Dark Theme, moderne Optik
-- Display Templates — `{{value}} °C`, farbkodierte Button-Hintergründe basierend auf MQTT-Werten
-- Multi-Action Button — ein Button publisht an mehrere Topics gleichzeitig
-- TypeScript Fixes — 7 tsc-Fehler (setState auf union type) aus v1.0 beheben
-
----
-*Last updated: 2026-03-25 after v2.0 milestone start*
+*Last updated: 2026-03-26 after v2.0 milestone*

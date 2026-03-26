@@ -1,5 +1,17 @@
 # Milestones
 
+## v2.0 Power Features + Polish (Shipped: 2026-03-26)
+
+**Phases completed:** 3 phases, 3 plans, 6 tasks
+
+**Key accomplishments:**
+
+- Zero tsc errors via isKey() type guards on all setState calls, plus longPressTopic/longPressPayload schema and PI fields for Plan 02
+- onKeyDown refactored to timestamp-only, onKeyUp routes short press (<500ms) to publish/toggle and long press (>=500ms) to longPressTopic/longPressPayload
+- Dark theme CSS with white-on-dark text and 5-section accordion layout replacing flat PI structure
+
+---
+
 ## v1.0 MVP (Shipped: 2026-03-25)
 
 **Phases completed:** 3 phases, 8 plans, 12 tasks
