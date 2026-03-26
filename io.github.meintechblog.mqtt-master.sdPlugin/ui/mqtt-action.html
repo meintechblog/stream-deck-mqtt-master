@@ -3,78 +3,115 @@
 <head lang="en">
   <meta charset="utf-8" />
   <script src="https://sdpi-components.dev/releases/v3/sdpi-components.js"></script>
+  <link rel="stylesheet" href="mqtt-action.css" />
 </head>
 <body>
-  <h2>Broker</h2>
-  <sdpi-item label="Host">
-    <sdpi-textfield setting="brokerHost" placeholder="192.168.3.8"></sdpi-textfield>
-  </sdpi-item>
-  <sdpi-item label="Port">
-    <sdpi-textfield setting="brokerPort" placeholder="1883" value="1883"></sdpi-textfield>
-  </sdpi-item>
-  <sdpi-item label="Username">
-    <sdpi-textfield setting="brokerUsername" placeholder="optional"></sdpi-textfield>
-  </sdpi-item>
-  <sdpi-item label="Password">
-    <sdpi-password setting="brokerPassword" placeholder="optional"></sdpi-password>
-  </sdpi-item>
-  <sdpi-item label="TLS">
-    <sdpi-checkbox setting="brokerTls"></sdpi-checkbox>
-  </sdpi-item>
+  <!-- Section 1: Broker (open by default, D-35) -->
+  <details open>
+    <summary>Broker</summary>
+    <div class="section-content">
+      <sdpi-item label="Host">
+        <sdpi-textfield setting="brokerHost" placeholder="192.168.3.8"></sdpi-textfield>
+      </sdpi-item>
+      <sdpi-item label="Port">
+        <sdpi-textfield setting="brokerPort" placeholder="1883" value="1883"></sdpi-textfield>
+      </sdpi-item>
+      <details class="advanced">
+        <summary class="advanced-toggle">Advanced</summary>
+        <div class="advanced-content">
+          <sdpi-item label="Username">
+            <sdpi-textfield setting="brokerUsername" placeholder="optional"></sdpi-textfield>
+          </sdpi-item>
+          <sdpi-item label="Password">
+            <sdpi-password setting="brokerPassword" placeholder="optional"></sdpi-password>
+          </sdpi-item>
+          <sdpi-item label="TLS">
+            <sdpi-checkbox setting="brokerTls"></sdpi-checkbox>
+          </sdpi-item>
+        </div>
+      </details>
+    </div>
+  </details>
 
-  <hr />
-  <h2>Subscribe</h2>
-  <sdpi-item label="Topic">
-    <sdpi-textfield setting="subscribeTopic" placeholder="stat/light/POWER"></sdpi-textfield>
-  </sdpi-item>
-  <sdpi-item label="JSON Path">
-    <sdpi-textfield setting="jsonPath" placeholder="temperature"></sdpi-textfield>
-  </sdpi-item>
-  <sdpi-item label="Display">
-    <sdpi-textfield setting="displayTemplate" placeholder="{{value}} °C"></sdpi-textfield>
-  </sdpi-item>
+  <!-- Section 2: Subscribe (collapsed, D-35) -->
+  <details>
+    <summary>Subscribe</summary>
+    <div class="section-content">
+      <sdpi-item label="Topic">
+        <sdpi-textfield setting="subscribeTopic" placeholder="stat/light/POWER"></sdpi-textfield>
+      </sdpi-item>
+      <details class="advanced">
+        <summary class="advanced-toggle">Advanced</summary>
+        <div class="advanced-content">
+          <sdpi-item label="JSON Path">
+            <sdpi-textfield setting="jsonPath" placeholder="temperature"></sdpi-textfield>
+          </sdpi-item>
+          <sdpi-item label="Display">
+            <sdpi-textfield setting="displayTemplate" placeholder="{{value}} °C"></sdpi-textfield>
+          </sdpi-item>
+        </div>
+      </details>
+    </div>
+  </details>
 
-  <hr />
-  <h2>Publish</h2>
-  <sdpi-item label="Topic">
-    <sdpi-textfield setting="publishTopic" placeholder="cmnd/light/POWER"></sdpi-textfield>
-  </sdpi-item>
-  <sdpi-item label="Payload">
-    <sdpi-textfield setting="publishPayload" placeholder="TOGGLE"></sdpi-textfield>
-  </sdpi-item>
-  <sdpi-item label="QoS">
-    <sdpi-select setting="qos">
-      <option value="0">0 - At most once</option>
-      <option value="1">1 - At least once</option>
-      <option value="2">2 - Exactly once</option>
-    </sdpi-select>
-  </sdpi-item>
-  <sdpi-item label="Retain">
-    <sdpi-checkbox setting="retain"></sdpi-checkbox>
-  </sdpi-item>
+  <!-- Section 3: Publish (collapsed, D-35) -->
+  <details>
+    <summary>Publish</summary>
+    <div class="section-content">
+      <sdpi-item label="Topic">
+        <sdpi-textfield setting="publishTopic" placeholder="cmnd/light/POWER"></sdpi-textfield>
+      </sdpi-item>
+      <sdpi-item label="Payload">
+        <sdpi-textfield setting="publishPayload" placeholder="TOGGLE"></sdpi-textfield>
+      </sdpi-item>
+      <details class="advanced">
+        <summary class="advanced-toggle">Advanced</summary>
+        <div class="advanced-content">
+          <sdpi-item label="QoS">
+            <sdpi-select setting="qos">
+              <option value="0">0 - At most once</option>
+              <option value="1">1 - At least once</option>
+              <option value="2">2 - Exactly once</option>
+            </sdpi-select>
+          </sdpi-item>
+          <sdpi-item label="Retain">
+            <sdpi-checkbox setting="retain"></sdpi-checkbox>
+          </sdpi-item>
+        </div>
+      </details>
+    </div>
+  </details>
 
-  <hr />
-  <h2>Toggle</h2>
-  <sdpi-item label="On Payload">
-    <sdpi-textfield setting="onPayload" placeholder="ON"></sdpi-textfield>
-  </sdpi-item>
-  <sdpi-item label="Off Payload">
-    <sdpi-textfield setting="offPayload" placeholder="OFF"></sdpi-textfield>
-  </sdpi-item>
-  <sdpi-item label="On Value">
-    <sdpi-textfield setting="onValue" placeholder="ON"></sdpi-textfield>
-  </sdpi-item>
-  <sdpi-item label="Off Value">
-    <sdpi-textfield setting="offValue" placeholder="OFF"></sdpi-textfield>
-  </sdpi-item>
+  <!-- Section 4: Toggle (collapsed, no advanced, D-39) -->
+  <details>
+    <summary>Toggle</summary>
+    <div class="section-content">
+      <sdpi-item label="On Payload">
+        <sdpi-textfield setting="onPayload" placeholder="ON"></sdpi-textfield>
+      </sdpi-item>
+      <sdpi-item label="Off Payload">
+        <sdpi-textfield setting="offPayload" placeholder="OFF"></sdpi-textfield>
+      </sdpi-item>
+      <sdpi-item label="On Value">
+        <sdpi-textfield setting="onValue" placeholder="ON"></sdpi-textfield>
+      </sdpi-item>
+      <sdpi-item label="Off Value">
+        <sdpi-textfield setting="offValue" placeholder="OFF"></sdpi-textfield>
+      </sdpi-item>
+    </div>
+  </details>
 
-  <hr />
-  <h2>Long Press</h2>
-  <sdpi-item label="Topic">
-    <sdpi-textfield setting="longPressTopic" placeholder="cmnd/light/OFF"></sdpi-textfield>
-  </sdpi-item>
-  <sdpi-item label="Payload">
-    <sdpi-textfield setting="longPressPayload" placeholder="changeTo/off"></sdpi-textfield>
-  </sdpi-item>
+  <!-- Section 5: Long Press (collapsed, no advanced, D-39) -->
+  <details>
+    <summary>Long Press</summary>
+    <div class="section-content">
+      <sdpi-item label="Topic">
+        <sdpi-textfield setting="longPressTopic" placeholder="cmnd/light/OFF"></sdpi-textfield>
+      </sdpi-item>
+      <sdpi-item label="Payload">
+        <sdpi-textfield setting="longPressPayload" placeholder="changeTo/off"></sdpi-textfield>
+      </sdpi-item>
+    </div>
+  </details>
 </body>
 </html>
