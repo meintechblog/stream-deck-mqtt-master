@@ -1,0 +1,95 @@
+/* === Theme Overrides (D-32, D-33 -- PI-01) === */
+:root {
+  --font-color: #ffffff;
+  --input-font-color: #ffffff;
+  /* --window-bg-color: #2d2d2d -- already correct */
+  /* --input-bg-color: #3d3d3d -- already correct */
+}
+
+body {
+  margin: 0;
+  padding: 4px;
+}
+
+/* === Section Accordion (D-34, D-36 -- PI-02) === */
+details {
+  margin-bottom: 4px;
+}
+
+details > summary {
+  background: #383838;
+  color: #ffffff;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 11pt;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
+}
+
+details > summary::-webkit-details-marker {
+  display: none;
+}
+
+details > summary::before {
+  content: "\25B6";
+  font-size: 8px;
+  transition: transform 0.2s ease;
+}
+
+details[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+details[open] > summary {
+  border-radius: 4px 4px 0 0;
+}
+
+/* === Section Content === */
+.section-content {
+  padding: 8px 4px 4px 4px;
+}
+
+/* === Advanced Toggle (D-38 -- PI-03) === */
+details.advanced {
+  margin-top: 4px;
+}
+
+details.advanced > summary.advanced-toggle {
+  background: transparent;
+  color: #0078D7;
+  font-size: 8pt;
+  font-weight: normal;
+  padding: 4px 0;
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+}
+
+details.advanced > summary.advanced-toggle::-webkit-details-marker {
+  display: none;
+}
+
+details.advanced > summary.advanced-toggle::before {
+  content: "+";
+  font-size: 10px;
+  margin-right: 4px;
+}
+
+details.advanced[open] > summary.advanced-toggle::before {
+  content: "\2212";
+}
+
+/* === Focus/Accent States === */
+details > summary:hover {
+  background: #404040;
+}
+
+details > summary:focus-visible {
+  outline: 2px solid #0078D7;
+  outline-offset: -2px;
+}
