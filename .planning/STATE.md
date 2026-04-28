@@ -73,8 +73,14 @@ None yet.
 
 - QUAL-01: 7 tsc --noEmit errors (setState on union type) -- must fix before adding Long Press
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 20260429-mqtt-resilience-fixes | MQTT plugin resilience fixes — restore-on-reconnect, stable clientId, persisted trim, no offline-title flicker, deploy.sh quoting | 2026-04-29 | eb230a3 | [20260429-mqtt-resilience-fixes](./quick/20260429-mqtt-resilience-fixes/) |
+
 ## Session Continuity
 
-Last session: 2026-03-26T06:34:52.243Z
-Stopped at: Completed 05-01-PLAN.md
+Last session: 2026-04-29
+Stopped at: Quick task 20260429-mqtt-resilience-fixes complete
 Resume file: None
