@@ -6,17 +6,24 @@ import { logger } from "../util/logger";
 import { topicRouter } from "./topic-router";
 
 /**
- * Singleton managing MQTT connections. One TCP connection per unique broker (CONN-05, ARCH-02).
- * Explicitly resubscribes all active topics on every connect event (Pitfall 1 fix).
- * Uses crypto.randomUUID() for client IDs to avoid collisions (Pitfall 4 fix).
+ * Status listener — called by the connection manager on connect/offline events
+ * so individual actions can restore their last-known display value rather than
+ * having the connection layer overwrite titles.
+ */
+export interface StatusListener {
+  /** Restore display from cached lastValue (no value = leave title alone). */
+  restoreDisplay: () => void;
+}
+
+/**
+ * Singleton managing MQTT connections. One TCP connection per unique broker.
+ * Explicitly resubscribes all active topics on every connect event.
+ * Stable client IDs per broker so the broker can re-identify us across restarts.
  */
 class ConnectionManager {
-  // brokerKey -> MqttClient
   private clients = new Map<string, mqtt.MqttClient>();
-  // brokerKey -> Set<topic> for resubscription on connect
   private activeTopics = new Map<string, Set<string>>();
-  // brokerKey -> Map<actionId, actionRef> for offline/connect notifications
-  private statusListeners = new Map<string, Map<string, { setTitle: (title: string) => Promise<void> }>>();
+  private statusListeners = new Map<string, Map<string, StatusListener>>();
 
   /**
    * Get or create an MQTT client for the given broker config.
@@ -31,7 +38,7 @@ class ConnectionManager {
       return this.clients.get(key)!;
     }
 
-    const clientId = normalizedConfig.clientId || `streamdeck-mqtt-${crypto.randomUUID()}`;
+    const clientId = normalizedConfig.clientId || stableClientId(key);
     const protocol = normalizedConfig.tls ? "mqtts" : "mqtt";
 
     logger.info(`Creating MQTT client for ${key} (clientId=${clientId})`);
@@ -43,13 +50,11 @@ class ConnectionManager {
       username: normalizedConfig.username || undefined,
       password: normalizedConfig.password || undefined,
       clientId,
-      reconnectPeriod: 5000, // CONN-04: auto-reconnect every 5s
-      clean: true, // Pitfall 1: explicit resubscribe is more reliable
-      rejectUnauthorized: false, // CONN-03: self-signed certs common in home networks
+      reconnectPeriod: 5000,
+      clean: true,
+      rejectUnauthorized: false,
     });
 
-    // Resubscribe ALL topics on every connect event (handles both initial connect and reconnect)
-    // Pitfall 1 fix: do NOT rely on MQTT.js resubscribe
     client.on("connect", () => {
       logger.info(`Connected to ${key}`);
       const topics = this.activeTopics.get(key);
@@ -59,16 +64,19 @@ class ConnectionManager {
         client.subscribe(topicList);
       }
 
-      // Clear offline indicator on all registered actions (retained messages restore real value)
-      const connectListeners = this.statusListeners.get(key);
-      if (connectListeners) {
-        for (const [, actionRef] of connectListeners) {
-          actionRef.setTitle("").catch(() => {});
+      // Restore each action's display from its cached lastValue rather than
+      // wiping titles. Buttons whose subscribe topic doesn't have a retained
+      // message would otherwise stay blank until the next state change.
+      const listeners = this.statusListeners.get(key);
+      if (listeners) {
+        for (const [, listener] of listeners) {
+          try { listener.restoreDisplay(); } catch (err) {
+            logger.error(`restoreDisplay failed: ${err instanceof Error ? err.message : String(err)}`);
+          }
         }
       }
     });
 
-    // Route incoming messages to TopicRouter for dispatch to action contexts
     client.on("message", (topic: string, payload: Buffer) => {
       logger.info(`MQTT message on ${key}: ${topic} = ${payload.toString().substring(0, 80)}`);
       topicRouter.dispatch(key, topic, payload.toString());
@@ -79,15 +87,10 @@ class ConnectionManager {
     });
 
     client.on("offline", () => {
+      // Don't overwrite button titles. Transient broker drops would otherwise
+      // flicker "! Offline" across every subscribed button. Reconnect is
+      // automatic; the next state change will refresh the display anyway.
       logger.warn(`MQTT client offline: ${key}`);
-
-      // Notify all registered actions about broker disconnect
-      const offlineListeners = this.statusListeners.get(key);
-      if (offlineListeners) {
-        for (const [, actionRef] of offlineListeners) {
-          actionRef.setTitle("! Offline").catch(() => {});
-        }
-      }
     });
 
     client.on("reconnect", () => {
@@ -101,15 +104,16 @@ class ConnectionManager {
   }
 
   /**
-   * Register an action to receive broker status notifications (offline/connect).
+   * Register an action to receive broker status notifications.
+   * The listener's `restoreDisplay()` is called on every (re)connect.
    */
-  registerActionForStatus(brokerKeyStr: string, actionId: string, actionRef: { setTitle: (title: string) => Promise<void> }): void {
+  registerActionForStatus(brokerKeyStr: string, actionId: string, listener: StatusListener): void {
     let listeners = this.statusListeners.get(brokerKeyStr);
     if (!listeners) {
       listeners = new Map();
       this.statusListeners.set(brokerKeyStr, listeners);
     }
-    listeners.set(actionId, actionRef);
+    listeners.set(actionId, listener);
   }
 
   /**
@@ -181,6 +185,14 @@ class ConnectionManager {
     this.statusListeners.clear();
     logger.info("ConnectionManager reset -- all connections closed");
   }
+}
+
+/**
+ * Derive a stable client ID per broker so reconnects look like the same client.
+ * Random IDs per restart generate broker-side noise and can trip rate limits.
+ */
+function stableClientId(key: string): string {
+  return `streamdeck-mqtt-${crypto.createHash("sha1").update(key).digest("hex").slice(0, 12)}`;
 }
 
 export const connectionManager = new ConnectionManager();

@@ -30,107 +30,129 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
   /** Timestamp of last keyDown per context, for long press duration calculation */
   private keyDownTimestamps = new Map<string, number>();
 
+  /** String setting keys that should always be trimmed before use or persistence. */
+  private static readonly TRIMMABLE_KEYS = [
+    "brokerHost", "brokerPort", "brokerUsername", "brokerPassword",
+    "subscribeTopic", "publishTopic", "publishPayload", "jsonPath", "displayTemplate",
+    "onPayload", "offPayload", "onValue", "offValue",
+    "longPressTopic", "longPressPayload",
+  ] as const;
+
   /**
-   * Trim all string fields in settings. sdpi-components textfields often have trailing spaces.
+   * Trim all string fields in settings (PI textfields commonly have stray spaces).
+   * Returns true if anything actually changed, so the caller can persist.
    */
-  private trimSettings(settings: MqttActionSettings): void {
-    for (const key of ["brokerHost", "brokerPort", "brokerUsername", "brokerPassword",
-      "subscribeTopic", "publishTopic", "publishPayload", "jsonPath", "displayTemplate",
-      "onPayload", "offPayload", "onValue", "offValue",
-      "longPressTopic", "longPressPayload"] as const) {
-      const val = settings[key as keyof MqttActionSettings];
+  private trimSettings(settings: MqttActionSettings): boolean {
+    let changed = false;
+    for (const key of MqttAction.TRIMMABLE_KEYS) {
+      const val = settings[key];
       if (typeof val === "string") {
-        (settings as Record<string, unknown>)[key] = val.trim();
+        const trimmed = val.trim();
+        if (trimmed !== val) {
+          (settings as Record<string, unknown>)[key] = trimmed;
+          changed = true;
+        }
       }
     }
+    return changed;
   }
 
-  /**
-   * Read broker config from action settings.
-   * Phase 1: broker config in action settings for sdpi-components auto-binding.
-   * Phase 2: move to global settings for credential security (CONN-06).
-   */
-  private getBrokerConfigFromSettings(settings: MqttActionSettings): BrokerConfig | null {
-    const host = (settings.brokerHost || "").trim();
-    if (host) {
-      return {
-        host,
-        port: parseInt((settings.brokerPort || "1883").trim(), 10) || 1883,
-        username: settings.brokerUsername || undefined,
-        password: settings.brokerPassword || undefined,
-        tls: settings.brokerTls ?? false,
-      };
+  /** Trim and persist via setSettings if anything changed — keeps PI clean across opens. */
+  private async normalizeSettings(
+    settings: MqttActionSettings,
+    actionRef: { setSettings: (s: MqttActionSettings) => Promise<void> },
+  ): Promise<void> {
+    if (this.trimSettings(settings)) {
+      await actionRef.setSettings(settings).catch((err: unknown) => {
+        logger.error(`setSettings failed: ${err instanceof Error ? err.message : String(err)}`);
+      });
     }
-    logger.warn("No broker configured in action settings");
-    return null;
+  }
+
+  /** Build BrokerConfig from already-trimmed settings. */
+  private getBrokerConfigFromSettings(settings: MqttActionSettings): BrokerConfig | null {
+    const host = settings.brokerHost || "";
+    if (!host) {
+      logger.warn("No broker configured in action settings");
+      return null;
+    }
+    return {
+      host,
+      port: parseInt(settings.brokerPort || "1883", 10) || 1883,
+      username: settings.brokerUsername || undefined,
+      password: settings.brokerPassword || undefined,
+      tls: settings.brokerTls ?? false,
+    };
   }
 
   /**
-   * Build a subscription callback with JSON path extraction, display template,
-   * setState for toggle feedback, and lastValue caching.
-   * Shared by onWillAppear and onDidReceiveSettings to avoid duplication.
+   * Apply a value (already extracted, post-jsonPath) to the button: render the
+   * title via displayTemplate and update toggle state per onValue/offValue.
+   *
+   * Toggle state rules:
+   * - Both onValue and offValue set: exact match -> on, anything else -> off.
+   * - Only offValue set: match = off, anything else = on.
+   * - Only onValue set: match = on, anything else = off.
+   */
+  private applyValueToButton(
+    settings: MqttActionSettings,
+    actionRef: WillAppearEvent<MqttActionSettings>["action"],
+    extracted: string,
+  ): void {
+    const displayValue = settings.displayTemplate
+      ? applyDisplayTemplate(settings.displayTemplate, extracted)
+      : extracted;
+
+    actionRef.setTitle(displayValue).catch((err: unknown) => {
+      logger.error(`setTitle failed: ${err instanceof Error ? err.message : String(err)}`);
+    });
+
+    if (!actionRef.isKey()) return;
+
+    const { onValue, offValue } = settings;
+    if (onValue && offValue) {
+      actionRef.setState(extracted === onValue ? 1 : 0).catch(() => {});
+    } else if (offValue) {
+      actionRef.setState(extracted === offValue ? 0 : 1).catch(() => {});
+    } else if (onValue) {
+      actionRef.setState(extracted === onValue ? 1 : 0).catch(() => {});
+    }
+  }
+
+  /**
+   * Build the subscription callback used by topicRouter. Extracts via jsonPath,
+   * caches lastValue, and delegates display to applyValueToButton.
    */
   private buildSubscriptionCallback(
     settings: MqttActionSettings,
     actionRef: WillAppearEvent<MqttActionSettings>["action"],
   ): (payload: string) => void {
     return (rawPayload: string) => {
-      // Step 1: Extract value via JSON path (SUB-03, D-16)
       const extracted = settings.jsonPath
         ? resolveJsonPath(rawPayload, settings.jsonPath)
         : rawPayload;
 
-      // Step 2: Apply display template (D-17)
-      const displayValue = settings.displayTemplate
-        ? applyDisplayTemplate(settings.displayTemplate, extracted)
-        : extracted;
+      logger.info(`callback: raw="${rawPayload.substring(0, 80)}" jsonPath="${settings.jsonPath}" extracted="${extracted}"`);
 
-      logger.info(`callback: raw="${rawPayload.substring(0, 80)}" jsonPath="${settings.jsonPath}" extracted="${extracted}" display="${displayValue}"`);
-
-      // Step 3: Update button title
-      actionRef.setTitle(displayValue).catch((err: unknown) => {
-        logger.error(`setTitle failed: ${err instanceof Error ? err.message : String(err)}`);
-      });
-
-      // Step 4: Update button state based on onValue/offValue (TOGL-03, D-18)
-      // Logic: exact match for set values, inverse for unset values
-      // - Both set: exact match for on and off
-      // - Only offValue set: match = off, everything else = on
-      // - Only onValue set: match = on, everything else = off
-      if (actionRef.isKey()) {
-        if (settings.onValue && settings.offValue) {
-          // Both defined: onValue = on, everything else = off
-          const newState = extracted === settings.onValue ? 1 : 0;
-          actionRef.setState(newState).catch(() => {});
-          logger.info(`setState(${newState}) for extracted="${extracted}" onValue="${settings.onValue}"`);
-        } else if (settings.offValue && !settings.onValue) {
-          // Only offValue: match = off, anything else = on
-          actionRef.setState(extracted === settings.offValue ? 0 : 1).catch(() => {});
-        } else if (settings.onValue && !settings.offValue) {
-          // Only onValue: match = on, anything else = off
-          actionRef.setState(extracted === settings.onValue ? 1 : 0).catch(() => {});
-        }
-      }
-
-      // Step 5: Cache lastValue in memory map (avoids setSettings/getSettings side effects)
       settings.lastValue = extracted;
       this.lastValues.set(actionRef.id, extracted);
+
+      this.applyValueToButton(settings, actionRef, extracted);
     };
   }
 
   /**
-   * Subscribe to topic on appear (SUB-01, SUB-02).
-   * Restores cached lastValue if available.
+   * Subscribe to topic on appear. Restores cached lastValue if available, and
+   * registers a status listener so the connection manager can re-render the
+   * cached value on every (re)connect rather than wiping the title.
    */
   override async onWillAppear(ev: WillAppearEvent<MqttActionSettings>): Promise<void> {
     const settings = ev.payload.settings;
     logger.info(`willAppear settings: ${JSON.stringify(settings)}`);
 
-    // Auto-fix whitespace in all string settings (PI textfields often have trailing spaces)
-    this.trimSettings(settings);
+    await this.normalizeSettings(settings, ev.action);
 
     const config = this.getBrokerConfigFromSettings(settings);
-
     if (!config) {
       await ev.action.setTitle("No Broker");
       return;
@@ -138,38 +160,26 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
 
     const key = brokerKey(config);
     connectionManager.getOrCreate(config);
-    connectionManager.registerActionForStatus(key, ev.action.id, ev.action);
+    connectionManager.registerActionForStatus(key, ev.action.id, {
+      restoreDisplay: () => {
+        const cached = this.lastValues.get(ev.action.id) ?? settings.lastValue;
+        if (cached) this.applyValueToButton(settings, ev.action, cached);
+      },
+    });
 
     if (settings.subscribeTopic) {
       const callback = this.buildSubscriptionCallback(settings, ev.action);
-
       const isFirst = topicRouter.register(key, settings.subscribeTopic, ev.action.id, callback);
       if (isFirst) {
         connectionManager.ensureSubscribed(key, settings.subscribeTopic);
       }
-
-      // Track current topic for didReceiveSettings change detection
       this.previousTopics.set(ev.action.id, settings.subscribeTopic);
     }
 
-    // Restore cached value from last session (apply display template + setState)
+    // Restore cached value from last session
     if (settings.lastValue) {
-      const displayValue = settings.displayTemplate
-        ? applyDisplayTemplate(settings.displayTemplate, settings.lastValue)
-        : settings.lastValue;
-      await ev.action.setTitle(displayValue);
-
-      // Restore toggle state from cached value (same logic as subscription callback)
-      if (ev.action.isKey()) {
-        if (settings.onValue && settings.offValue) {
-          if (settings.lastValue === settings.onValue) await ev.action.setState(1);
-          else if (settings.lastValue === settings.offValue) await ev.action.setState(0);
-        } else if (settings.offValue && !settings.onValue) {
-          await ev.action.setState(settings.lastValue === settings.offValue ? 0 : 1);
-        } else if (settings.onValue && !settings.offValue) {
-          await ev.action.setState(settings.lastValue === settings.onValue ? 1 : 0);
-        }
-      }
+      this.lastValues.set(ev.action.id, settings.lastValue);
+      this.applyValueToButton(settings, ev.action, settings.lastValue);
     }
   }
 
@@ -188,7 +198,7 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
    */
   override async onKeyUp(ev: KeyUpEvent<MqttActionSettings>): Promise<void> {
     const settings = ev.payload.settings;
-    this.trimSettings(settings);
+    await this.normalizeSettings(settings, ev.action);
     const config = this.getBrokerConfigFromSettings(settings);
 
     if (!config) {
@@ -258,6 +268,8 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
    */
   override async onWillDisappear(ev: WillDisappearEvent<MqttActionSettings>): Promise<void> {
     const settings = ev.payload.settings;
+    // Trim before unregistering so subscribeTopic matches what onWillAppear registered.
+    this.trimSettings(settings);
     const config = this.getBrokerConfigFromSettings(settings);
 
     if (!config) {
@@ -310,7 +322,7 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
 
   private async handleSettingsChange(ev: DidReceiveSettingsEvent<MqttActionSettings>): Promise<void> {
     const settings = ev.payload.settings;
-    this.trimSettings(settings);
+    await this.normalizeSettings(settings, ev.action);
     const config = this.getBrokerConfigFromSettings(settings);
 
     if (!config) {
