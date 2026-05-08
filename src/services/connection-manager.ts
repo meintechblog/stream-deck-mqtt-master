@@ -51,12 +51,26 @@ class ConnectionManager {
       password: normalizedConfig.password || undefined,
       clientId,
       reconnectPeriod: 5000,
+      // Halve the default 60s keepalive so a half-open socket (mac sleep,
+      // NAT-table eviction) is detected within ~45s instead of ~90s.
+      keepalive: 30,
       clean: true,
       rejectUnauthorized: false,
     });
 
     client.on("connect", () => {
       logger.info(`Connected to ${key}`);
+
+      // OS-level TCP keepalive catches the case where the TCP socket survives
+      // a long idle (mac sleep) but the peer is gone. mqtt.js does not enable
+      // this by default, so PINGREQs may queue silently on a dead socket.
+      const sock = client.stream as { setKeepAlive?: (enable: boolean, initialDelay: number) => void } | undefined;
+      try {
+        sock?.setKeepAlive?.(true, 15000);
+      } catch (err) {
+        logger.warn(`setKeepAlive failed on ${key}: ${err instanceof Error ? err.message : String(err)}`);
+      }
+
       const topics = this.activeTopics.get(key);
       if (topics && topics.size > 0) {
         const topicList = [...topics];
@@ -91,6 +105,13 @@ class ConnectionManager {
       // flicker "! Offline" across every subscribed button. Reconnect is
       // automatic; the next state change will refresh the display anyway.
       logger.warn(`MQTT client offline: ${key}`);
+      // Trigger reconnect immediately rather than waiting for the passive
+      // reconnectPeriod — speeds recovery after wake-from-sleep / NAT loss.
+      try {
+        client.reconnect();
+      } catch (err) {
+        logger.error(`reconnect() failed on ${key}: ${err instanceof Error ? err.message : String(err)}`);
+      }
     });
 
     client.on("reconnect", () => {
