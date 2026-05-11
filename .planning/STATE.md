@@ -79,10 +79,11 @@ None yet.
 |---|-------------|------|--------|-----------|
 | 20260429-mqtt-resilience-fixes | MQTT plugin resilience fixes — restore-on-reconnect, stable clientId, persisted trim, no offline-title flicker, deploy.sh quoting | 2026-04-29 | eb230a3 | [20260429-mqtt-resilience-fixes](./quick/20260429-mqtt-resilience-fixes/) |
 | 20260508-mqtt-keepalive-half-open-fix | MQTT keepalive 30s + TCP-level OS keepalive + active reconnect on offline — half-open socket detection after mac sleep / NAT eviction | 2026-05-08 | 273f363 | [20260508-mqtt-keepalive-half-open-fix](./quick/20260508-mqtt-keepalive-half-open-fix/) |
-| 20260511-stale-indicator | Per-button stale-data indicator: title prefix when subscribed topic goes silent for staleThresholdSeconds. Opt-in via new settings field, default off. New `StaleTracker` helper + 7 unit tests. | 2026-05-11 | (this commit) | [20260511-stale-indicator](./quick/20260511-stale-indicator/) |
+| 20260511-stale-indicator | Per-button stale-data indicator: title prefix when subscribed topic goes silent for staleThresholdSeconds. Opt-in via new settings field, default off. New `StaleTracker` helper + 7 unit tests. | 2026-05-11 | 2c5c186 | [20260511-stale-indicator](./quick/20260511-stale-indicator/) |
+| 20260511-long-press-on-hold | Long-press now fires while key is held (at 500ms) instead of waiting for release. New `LongPressCoordinator` helper + 8 unit tests. KeyUp gated by coordinator state to suppress double-publish. | 2026-05-11 | (this commit) | [20260511-long-press-on-hold](./quick/20260511-long-press-on-hold/) |
 
 ## Session Continuity
 
 Last session: 2026-05-11
-Stopped at: Quick task 20260511-stale-indicator complete; Hallbude miniserver MQTT bridge restored mid-session (separate fix on user side)
+Stopped at: Quick task 20260511-long-press-on-hold complete; awaiting user physical verification of hold-fire timing
 Resume file: None
