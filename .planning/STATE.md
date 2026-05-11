@@ -71,16 +71,18 @@ None yet.
 
 ### Blockers/Concerns
 
-- QUAL-01: 7 tsc --noEmit errors (setState on union type) -- must fix before adding Long Press
+- ~~QUAL-01: 7 tsc --noEmit errors (setState on union type)~~ — resolved (verified 2026-05-11: `pnpm exec tsc --noEmit` exits 0)
 
 ### Quick Tasks Completed
 
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 20260429-mqtt-resilience-fixes | MQTT plugin resilience fixes — restore-on-reconnect, stable clientId, persisted trim, no offline-title flicker, deploy.sh quoting | 2026-04-29 | eb230a3 | [20260429-mqtt-resilience-fixes](./quick/20260429-mqtt-resilience-fixes/) |
+| 20260508-mqtt-keepalive-half-open-fix | MQTT keepalive 30s + TCP-level OS keepalive + active reconnect on offline — half-open socket detection after mac sleep / NAT eviction | 2026-05-08 | 273f363 | [20260508-mqtt-keepalive-half-open-fix](./quick/20260508-mqtt-keepalive-half-open-fix/) |
+| 20260511-stale-indicator | Per-button stale-data indicator: title prefix when subscribed topic goes silent for staleThresholdSeconds. Opt-in via new settings field, default off. New `StaleTracker` helper + 7 unit tests. | 2026-05-11 | (this commit) | [20260511-stale-indicator](./quick/20260511-stale-indicator/) |
 
 ## Session Continuity
 
-Last session: 2026-04-29
-Stopped at: Quick task 20260429-mqtt-resilience-fixes complete
+Last session: 2026-05-11
+Stopped at: Quick task 20260511-stale-indicator complete; Hallbude miniserver MQTT bridge restored mid-session (separate fix on user side)
 Resume file: None
