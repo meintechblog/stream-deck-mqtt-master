@@ -57,6 +57,11 @@ export const MqttActionSettingsSchema = z.object({
   longPressTopic: z.string().optional(),    // separate topic for long press publish
   longPressPayload: z.string().optional(),  // payload sent on long press (>= 500ms)
 
+  // Stale indicator: if no message arrives on subscribeTopic for N seconds,
+  // prefix the rendered title with stalePrefix. 0 disables the feature.
+  staleThresholdSeconds: z.number().int().min(0).default(0),
+  stalePrefix: z.string().default("⚠ "),
+
   // Internal
   lastValue: z.string().optional(), // cached for restart recovery
 });

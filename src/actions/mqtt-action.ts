@@ -12,6 +12,7 @@ import { topicRouter } from "../services/topic-router";
 import { brokerKey } from "../util/broker-key";
 import { logger } from "../util/logger";
 import { resolveJsonPath, applyDisplayTemplate } from "../util/resolve-json-path";
+import { StaleTracker } from "../util/stale-tracker";
 import type { MqttActionSettings, BrokerConfig } from "../types/settings";
 
 /**
@@ -29,6 +30,8 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
   private lastValues = new Map<string, string>();
   /** Timestamp of last keyDown per context, for long press duration calculation */
   private keyDownTimestamps = new Map<string, number>();
+  /** Per-context stale-watch (timer + flag). Pure logic, see util/stale-tracker. */
+  private staleTracker = new StaleTracker();
 
   /** String setting keys that should always be trimmed before use or persistence. */
   private static readonly TRIMMABLE_KEYS = [
@@ -99,9 +102,13 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
     actionRef: WillAppearEvent<MqttActionSettings>["action"],
     extracted: string,
   ): void {
-    const displayValue = settings.displayTemplate
+    const baseDisplay = settings.displayTemplate
       ? applyDisplayTemplate(settings.displayTemplate, extracted)
       : extracted;
+    const stalePrefix = this.staleTracker.isStale(actionRef.id)
+      ? (settings.stalePrefix || "⚠ ")
+      : "";
+    const displayValue = stalePrefix + baseDisplay;
 
     actionRef.setTitle(displayValue).catch((err: unknown) => {
       logger.error(`setTitle failed: ${err instanceof Error ? err.message : String(err)}`);
@@ -120,6 +127,22 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
   }
 
   /**
+   * (Re)arm the stale-watch timer for a context. No-op when threshold is 0.
+   * On fire, re-renders the cached value with the stale prefix.
+   */
+  private scheduleStaleTimer(
+    settings: MqttActionSettings,
+    actionRef: WillAppearEvent<MqttActionSettings>["action"],
+  ): void {
+    const threshold = settings.staleThresholdSeconds ?? 0;
+    this.staleTracker.arm(actionRef.id, threshold, (id) => {
+      const cached = this.lastValues.get(id) ?? settings.lastValue;
+      if (cached) this.applyValueToButton(settings, actionRef, cached);
+      logger.info(`Stale: context ${id} marked stale after ${threshold}s of subscribe inactivity`);
+    });
+  }
+
+  /**
    * Build the subscription callback used by topicRouter. Extracts via jsonPath,
    * caches lastValue, and delegates display to applyValueToButton.
    */
@@ -134,10 +157,14 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
 
       logger.info(`callback: raw="${rawPayload.substring(0, 80)}" jsonPath="${settings.jsonPath}" extracted="${extracted}"`);
 
+      // Fresh data — drop any stale flag before re-rendering, then arm the next watch.
+      this.staleTracker.markFresh(actionRef.id);
+
       settings.lastValue = extracted;
       this.lastValues.set(actionRef.id, extracted);
 
       this.applyValueToButton(settings, actionRef, extracted);
+      this.scheduleStaleTimer(settings, actionRef);
     };
   }
 
@@ -174,6 +201,10 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
         connectionManager.ensureSubscribed(key, settings.subscribeTopic);
       }
       this.previousTopics.set(ev.action.id, settings.subscribeTopic);
+      // Arm stale watch from initial appear so a topic that never publishes
+      // (no retained, no events) eventually flags rather than silently showing
+      // a cached lastValue from a prior session forever.
+      this.scheduleStaleTimer(settings, ev.action);
     }
 
     // Restore cached value from last session
@@ -295,6 +326,7 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
       this.debounceTimers.delete(ev.action.id);
     }
     this.previousTopics.delete(ev.action.id);
+    this.staleTracker.clear(ev.action.id);
   }
 
   /**
@@ -350,6 +382,8 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
           connectionManager.ensureUnsubscribed(key, oldTopic);
         }
       }
+      // Topic identity changed — drop any stale state tied to the old topic.
+      this.staleTracker.clear(ev.action.id);
 
       // Register new topic with full callback pipeline
       if (newTopic) {
@@ -361,6 +395,7 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
         }
 
         this.previousTopics.set(ev.action.id, newTopic);
+        this.scheduleStaleTimer(settings, ev.action);
       } else {
         this.previousTopics.delete(ev.action.id);
       }
@@ -370,6 +405,8 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
       const callback = this.buildSubscriptionCallback(settings, ev.action);
       topicRouter.updateCallback(key, newTopic, ev.action.id, callback);
       logger.info("didReceiveSettings: topic unchanged, callback updated with new settings");
+      // Re-arm in case staleThresholdSeconds itself changed in the PI.
+      this.scheduleStaleTimer(settings, ev.action);
     }
   }
 }
