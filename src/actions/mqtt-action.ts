@@ -13,7 +13,11 @@ import { brokerKey } from "../util/broker-key";
 import { logger } from "../util/logger";
 import { resolveJsonPath, applyDisplayTemplate } from "../util/resolve-json-path";
 import { StaleTracker } from "../util/stale-tracker";
+import { LongPressCoordinator } from "../util/long-press-coordinator";
 import type { MqttActionSettings, BrokerConfig } from "../types/settings";
+
+/** Threshold for distinguishing short vs long press (D-27, v2.0: configurable deferred). */
+const LONG_PRESS_THRESHOLD_MS = 500;
 
 /**
  * Unified MQTT action handling both publish (on key press) and subscribe (on appear).
@@ -32,6 +36,8 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
   private keyDownTimestamps = new Map<string, number>();
   /** Per-context stale-watch (timer + flag). Pure logic, see util/stale-tracker. */
   private staleTracker = new StaleTracker();
+  /** Per-context long-press timer fired while key is still held. See util/long-press-coordinator. */
+  private longPressCoordinator = new LongPressCoordinator();
 
   /** String setting keys that should always be trimmed before use or persistence. */
   private static readonly TRIMMABLE_KEYS = [
@@ -215,17 +221,39 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
   }
 
   /**
-   * Record timestamp on key down for long press duration calculation (D-26).
-   * All publish logic fires on KeyUp, never KeyDown.
+   * Record keyDown timestamp AND arm the long-press timer so the long-press
+   * payload fires while the user is still holding the key — rather than
+   * waiting for release. Short-press path stays gated by the coordinator's
+   * `cancel` result in onKeyUp.
    */
   override async onKeyDown(ev: KeyDownEvent<MqttActionSettings>): Promise<void> {
     this.keyDownTimestamps.set(ev.action.id, Date.now());
+
+    const settings = ev.payload.settings;
+    if (!settings.longPressTopic || !settings.longPressPayload) {
+      // Nothing to fire on hold — keep coordinator idle. KeyUp's "ignored"
+      // log path still preserves the prior behavior for long holds.
+      return;
+    }
+    const config = this.getBrokerConfigFromSettings(settings);
+    if (!config) return;
+
+    const topic = settings.longPressTopic;
+    const payload = settings.longPressPayload;
+    this.longPressCoordinator.arm(ev.action.id, LONG_PRESS_THRESHOLD_MS, () => {
+      const client = connectionManager.getOrCreate(config);
+      client.publish(topic, payload, {
+        qos: settings.qos ?? 0,
+        retain: settings.retain ?? false,
+      });
+      logger.info(`Long press (on hold, >=${LONG_PRESS_THRESHOLD_MS}ms): published "${payload}" to ${topic}`);
+    });
   }
 
   /**
-   * Publish payload on key up with short/long press routing (PUB-01, PUB-02, PUB-03, LP-01, LP-02, LP-03).
-   * Short press (< 500ms): normal publish/toggle logic.
-   * Long press (>= 500ms): send longPressPayload to longPressTopic (D-27, D-29).
+   * On release: if long-press already fired during the hold, suppress the
+   * short-press path so the release doesn't double-publish. Otherwise branch
+   * on press duration as before (PUB-01..03, LP-01..03).
    */
   override async onKeyUp(ev: KeyUpEvent<MqttActionSettings>): Promise<void> {
     const settings = ev.payload.settings;
@@ -233,28 +261,28 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
     const config = this.getBrokerConfigFromSettings(settings);
 
     if (!config) {
+      this.longPressCoordinator.cancel(ev.action.id);
+      this.keyDownTimestamps.delete(ev.action.id);
       return;
     }
 
-    // Calculate press duration (per D-27: 500ms threshold)
+    const longPressAlreadyFired = this.longPressCoordinator.cancel(ev.action.id);
     const downTime = this.keyDownTimestamps.get(ev.action.id);
     this.keyDownTimestamps.delete(ev.action.id);
     const duration = downTime ? Date.now() - downTime : 0;
-    const isLongPress = duration >= 500;
 
-    if (isLongPress) {
-      // Long press: send longPressPayload to longPressTopic (per D-29: unconditional, no state check)
-      // Per D-28: if no longPressPayload configured, do nothing
-      if (settings.longPressTopic && settings.longPressPayload) {
-        const client = connectionManager.getOrCreate(config);
-        client.publish(settings.longPressTopic, settings.longPressPayload, {
-          qos: settings.qos ?? 0,
-          retain: settings.retain ?? false,
-        });
-        logger.info(`Long press (${duration}ms): published "${settings.longPressPayload}" to ${settings.longPressTopic}`);
-      } else {
-        logger.info(`Long press (${duration}ms): no longPressTopic/Payload configured, ignoring`);
-      }
+    if (longPressAlreadyFired) {
+      // Already published while held — release is a no-op so we don't double-fire.
+      return;
+    }
+
+    if (duration >= LONG_PRESS_THRESHOLD_MS) {
+      // Released after the threshold but coordinator didn't fire. The only
+      // way this happens is when no longPressTopic/Payload was configured
+      // (so onKeyDown deliberately skipped arming). Preserve the prior
+      // "ignored" log path so users who intentionally have no long-press
+      // config don't suddenly get their short-press payload on long holds.
+      logger.info(`Long press (${duration}ms): no longPressTopic/Payload configured, ignoring`);
     } else {
       // Short press: original publish/toggle logic (moved from onKeyDown)
       if (!settings.publishTopic) {
@@ -327,6 +355,7 @@ export class MqttAction extends SingletonAction<MqttActionSettings> {
     }
     this.previousTopics.delete(ev.action.id);
     this.staleTracker.clear(ev.action.id);
+    this.longPressCoordinator.cancel(ev.action.id);
   }
 
   /**
